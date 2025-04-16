@@ -164,7 +164,7 @@ inline void Game::draw()
         DrawText(TextFormat("%0f", percentLoaded), 400, 400, 30, MAROON);
         break;
     case MAIN:
-        drawMenuBackground("SQUARED 3");
+        drawMenuBackground("NETHERIUM");
         if(drawButton({SCREENWIDTH - 120, SCREENHEIGHT - 120, 100, 100}, "START", 20, foregroundColour)) currentScene = LEVELSELECT;
         break;
     case LEVELSELECT: {

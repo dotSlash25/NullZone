@@ -1,0 +1,11 @@
+# Compiled object files
+*.o
+.code-workspace
+# Executables
+*.exe
+
+# Build folders
+/build/
+
+# Visual Studio Code settings (optional)
+.vscode/

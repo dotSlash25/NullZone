@@ -10,7 +10,7 @@
 Game game = Game();
 
 int main() {
-    InitWindow(SCREENWIDTH, SCREENHEIGHT, "Squared 3");
+    InitWindow(SCREENWIDTH, SCREENHEIGHT, "Netherium Mines");
     InitAudioDevice();
     game.init();
     SetTargetFPS(GetMonitorRefreshRate(0));
