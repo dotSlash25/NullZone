@@ -1,0 +1,25 @@
+####Controls####
+WASD
+E pickup
+space dash
+R reload
+F Throw gun
+
+####TO ADD####
+Bloom
+Ambient Sounds
+File upload mechanic
+Artstyle variation
+Rocket Launcher
+
+####MAP COLOURS####
+
+?/AI
+for(int i = (int)player.breadCrumbs.size() - 1; i >= 0 ; i--) {
+                        if (MapLoader.rayCast(position, player.breadCrumbs[i].position) && !CheckCollisionRecs(collider, {player.breadCrumbs[i].position.x, player.breadCrumbs[i].position.y, 5, 5})) {
+                            moveTarget = player.breadCrumbs[i].position;
+                            target = player.breadCrumbs[i].position;
+                            foundBreadCrumb = true;
+                            break;
+                        }
+                    }
