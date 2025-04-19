@@ -25,6 +25,7 @@ private:
 
     float lastBreadCrumbTime = 0;
     bool justHit = false;
+    float hitTimer = 0;
     bool dead = false;
     HUD hud;
 
@@ -81,13 +82,20 @@ inline void Player::update() {
         sprite.playOnce(2);
         sprite.update();
         velocity = lerp(velocity, Vector2Zero(), 2);
-        return;
+    } else {
+        handleInput();
+        updateBreadcrumbs();
+        updateGun();
+        handleMovement();
     }
-    handleInput();
+    if (justHit) {
+        hitTimer -= delta;
+        if (hitTimer <= 0) {
+            hitTimer = 0.3f;
+            justHit = false;
+        }
+    }
     sprite.update();
-    updateBreadcrumbs();
-    updateGun();
-    handleMovement();
     cam.update(Vector2Add(position, Vector2{width*3/2.0f + aimDel.x, height*3/2.0f + aimDel.y}));
     updateHUD();
 }
@@ -97,7 +105,9 @@ inline void Player::draw() {
     for (auto &&crumb : breadCrumbs) {
         DrawCircleV(crumb.position, 5, YELLOW);
     }
+    if (justHit) BeginShaderMode(flashShader);
     sprite.draw(position);
+    if (justHit) EndShaderMode();
     if (!dead) gun.draw();
     drawHealthBar({position.x - 30, position.y - 60, 60, 10}, health);
 }

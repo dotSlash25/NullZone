@@ -18,7 +18,7 @@ private:
     bool playingOnce = false;
     bool paused = false;
 public:
-    int frame;
+    int frame = 0;
     AnimatedSprite(int sprite, int numAnims, int* frames, int FPS);
     ~AnimatedSprite();
     void play(int animID);

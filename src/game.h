@@ -79,9 +79,11 @@ inline void Game::init() {
 
 inline void Game::loadLevel(int level) {
     mapData dat = MapLoader.generateLevel(level);
+    printf("Loading seed: %d\n", level);
     player.position = dat.playerPosition;
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(0, 5)));
+        else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
         else enemies.push_back(std::make_unique<WalkerEnemy>(dat.enemySpawnPositions[i]));
     }
     for (int i = 0; i < dat.numCollectibleSpawnPositions; i++) {
@@ -118,6 +120,7 @@ inline void Game::update()
     case LEVELSELECT:
         break;
     case GAME:
+        if (IsKeyPressed(KEY_ENTER)) loadLevel(GetRandomValue(0, 100));
         player.update();
         for (auto &&enemy : enemies)
         {
@@ -198,10 +201,6 @@ inline void Game::draw()
                 collectibles.end()
         );
         overworldParticles.draw(Vector2Zero());
-        // for (int i = 0; i < Generator::roomsCount; i++) {
-        //     Rectangle rec = Generator::rooms[i];
-        //     DrawRectangle(rec.x*tileDrawSize, rec.y*tileDrawSize, rec.width*tileDrawSize, rec.height*tileDrawSize, Fade(BLUE, 0.3));
-        // }
         EndMode2D();
         player.drawHUD();
         DrawFPS(10, 10);

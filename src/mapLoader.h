@@ -2,6 +2,8 @@
 
 #include "Tilemap.h"
 
+//todo: add map info like steps per turn etc
+
 typedef struct mapData {
     short numEnemySpawnPositions;
     Vector2 enemySpawnPositions[32];

@@ -76,9 +76,10 @@ inline void Collectible::draw()
     DrawTexturePro(spriteManager.sprite(spriteID), spriteRect, dstRect, origin, 0, Fade(BLACK, 0.5));
     dstRect.y += -10.0f + 5.0f*sin(2 * animTimer/2.0f * PI);
     DrawTexturePro(spriteManager.sprite(spriteID), spriteRect, dstRect, origin, 0, WHITE);
+    DrawCircleV(position, 5, YELLOW);
     if (Vector2DistanceSqr(position, player.position) < 400*(drawScale*drawScale))
     {
-        DrawText("Press E", position.x + spriteRect.width/2 - MeasureText("Press E", 10)/2, position.y + 2 + spriteRect.height, 10, BLACK);
+        DrawText("Press E", position.x + spriteRect.width/2 - MeasureText("Press E", 10)/2, position.y + 2 + spriteRect.height, 10, WHITE);
         if (IsKeyPressed(KEY_E)) {
             active = false;
             switch (type)

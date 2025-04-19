@@ -92,7 +92,7 @@ public:
                 Rectangle sourceRec = { (float)explosivesArr[i].frame*swidth, 0, (float)swidth, (float)sheight};
                 Rectangle dstRec = { explosivesArr[i].position.x, explosivesArr[i].position.y, swidth*explosivesArr[i].scale, sheight*explosivesArr[i].scale};
                 DrawCircleV(explosivesArr[i].position, explosivesArr[i].scale*20, Fade(BLACK, 0.2));
-                DrawTexturePro(spriteManager.sprite(8), sourceRec, dstRec, {swidth / 2 * explosivesArr[i].scale, sheight / 2 * explosivesArr[i].scale}, explosivesArr[i].rotation, WHITE);
+                DrawTexturePro(spriteManager.sprite(12), sourceRec, dstRec, {swidth / 2 * explosivesArr[i].scale, sheight / 2 * explosivesArr[i].scale}, explosivesArr[i].rotation, WHITE);
             } else {
                 int swidth = 6;
                 int sheight = 6;
@@ -104,3 +104,5 @@ public:
         }
     }
 };
+
+extern Explosives explosives;

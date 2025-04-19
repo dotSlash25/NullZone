@@ -40,7 +40,8 @@ inline void camera::update(Vector2 pos)
 
     if (rotTimer >= 0) {
         rotTimer -= delta;
-        cam.rotation = rotTimer*50*GetRandomValue(-30, 30);
+        cam.rotation = GetRandomValue(-30, 30) * rotTimer * 50.0f;
+        cam.rotation = Clamp(cam.rotation, -30, 30);
     }
 
     cam.rotation = lerp(cam.rotation, 0, 15);
@@ -65,7 +66,9 @@ inline void camera::shake(Vector2 init)
 inline void camera::shakeExplosion(float dis) {
     shakeBias = Vector2Zero();
     shakeValue += 1;
-    rotTimer += dis/10;
+    shakeValue = Clamp(shakeValue, 0, 5);
+    rotTimer += dis/20.0f;
+    rotTimer = Clamp(rotTimer, 0, 0.08f);
 }
 
 camera::~camera()
