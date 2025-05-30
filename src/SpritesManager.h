@@ -8,7 +8,7 @@
 class SpritesManager
 {
 private:
-    static const int numSprites = 13;
+    static const int numSprites = 14;
     std::string paths[numSprites];
     Image images[numSprites];
     Texture sprites[numSprites];
@@ -39,6 +39,7 @@ SpritesManager::SpritesManager() {
     paths[10] = ("img/crosshair.png");
     paths[11] = ("img/explosionParticles.png");
     paths[12] = ("img/explosion.png");
+    paths[13] = ("img/ally.png");
 }
 
 inline void SpritesManager::loadSprites() {

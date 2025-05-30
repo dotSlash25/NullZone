@@ -3,7 +3,7 @@ class BoomEnemy: public Enemy {
         AnimatedSprite sprite = AnimatedSprite(8, 3, (int[]){4, 4, 1}, 10);
         bool isAlarmed = false;
     public:
-    BoomEnemy(Vector2 pos) : Enemy(20, {20, 30}, 4) {
+    BoomEnemy(Vector2 pos) : Enemy(3, {20, 30}, 4) {
         position = pos;
         speed = 250;
         sprite.scale = 5;

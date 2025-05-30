@@ -52,8 +52,8 @@ public:
     bool automatic = false;
     float kickback = 2;
     float rotation = 0;
-    float aimDownLimit = 40;
-    float scope = 0.0f;
+    float range = 40;
+    float scope = 1.0f;
 
     bool reloading = false;
     float reloadingTime = 0;
@@ -87,7 +87,7 @@ inline void Gun::loadData(gunType t)
     spreadNumber = dat.spreadNumber;
     spreadAngle = dat.spreadAngle;
     scope = dat.scope;
-    aimDownLimit = dat.aimDownDistance;
+    range = dat.range;
     shootParticles.spread = 15*DEG2RAD;
 }
 
@@ -99,6 +99,7 @@ inline void Gun::shoot(bool isEnemy)
         angle += GetRandomValue(-100, 100)/100.0f * inaccuracy;
         Bullet b = Bullet(type, angle);
         b.shotByEnemy = isEnemy;
+        b.range = range;
         b.damage = damage;
         b.position = Vector2Add(position, Vector2Rotate(Vector2{srcTexture.width*5.4f, 0}, angle));
         bullets.push_back(b);

@@ -2,21 +2,39 @@ class WalkerEnemy: public Enemy {
     private:
         AnimatedSprite sprite = AnimatedSprite(6, 3, (int[]){4, 4, 4}, 10);
     public:
-        WalkerEnemy(Vector2 pos) : Enemy(20, {20, 30}, 1) {
-        position = pos;
-        speed = 250;
-        sprite.scale = 5;
-        sprite.refresh();
-        sprite.play(1);
-    }
+        WalkerEnemy(Vector2 pos) : Enemy(5, {20, 30}, 1) {
+            position = pos;
+            speed = 280;
+            sprite.scale = 5;
+            sprite.refresh();
+            sprite.play(0);
+            state = IDLE;
+        }
     
     void update() {
         if (!dead) {
-            velocity = {player.position.x - position.x, player.position.y - position.y};    
-            if (velocity.x > 0) sprite.flipH = false;
-            else sprite.flipH = true;
-    
-            if (Vector2DistanceSqr(position, player.position) < 100) player.applyDamage(10, Vector2Subtract(player.position, position));
+            if (state == CHASING) {
+                velocity = {player.position.x - position.x, player.position.y - position.y};    
+                if (velocity.x > 0) sprite.flipH = false;
+                else sprite.flipH = true;
+        
+                if (Vector2DistanceSqr(position, player.position) < 100) {
+                    Vector2 del = Vector2Subtract(player.position, position);
+                    player.applyDamage(5, del);
+                    knockback = Vector2Scale(del, -speed/4);
+                }
+
+                if (Vector2DistanceSqr(position, player.position) > 225000 && !MapLoader.rayCast(position, player.position)) {
+                    state = IDLE;
+                    sprite.play(0);
+                }
+            } else {
+                velocity = lerp(velocity, Vector2Zero(), 10);
+                if (Vector2DistanceSqr(position, player.position) < 81000 && MapLoader.rayCast(position, player.position)) {
+                    state = CHASING;
+                    sprite.play(1);
+                }
+            }
         } else {
             speed = lerp(speed, 0, 4);
         }

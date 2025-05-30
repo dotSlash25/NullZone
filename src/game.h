@@ -5,6 +5,7 @@ enum gunType {NONE, PISTOL, SMG, RIFLE, SHOTGUN, SNIPER, RPG};
 void throwGun(Vector2 position, gunType type);
 void applyAreaDamage(Vector2 position, float damage, float radius);
 void slowMo(float time, float factor);
+void drawMinimap();
 
 Shader flashShader;
 Shader vignetteShader;
@@ -20,6 +21,10 @@ Shader vignetteShader;
 #include "src/Explosives.h"
 #include "src/Player.h"
 #include "src/Enemy.h"
+
+std::vector<std::unique_ptr<Enemy>> enemies;
+
+#include "src/Ally.h"
 #include "src/Collectible.h"
 #include "src/Menu.h"
 #include "src/LevelMaker.h"
@@ -29,8 +34,9 @@ SoundsManager soundManager;
 mapLoader MapLoader = mapLoader();
 
 std::vector<Bullet> bullets;
-std::vector<std::unique_ptr<Enemy>> enemies;
 std::vector<Collectible> collectibles;
+
+Ally ally = Ally({0, 0}, SMG);
 
 Explosives explosives;
 
@@ -46,6 +52,8 @@ LevelMaker lvlMaker;
 float slowMoTimer = 0;
 float slowMoFactor = 0.5;
 float percentLoaded = 0.0f;
+
+RenderTexture2D minimap;
 
 class Game
 {
@@ -81,6 +89,7 @@ inline void Game::loadLevel(int level) {
     mapData dat = MapLoader.generateLevel(level);
     printf("Loading seed: %d\n", level);
     player.position = dat.playerPosition;
+    ally = Ally(player.position, SMG);
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(0, 5)));
         else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
@@ -89,6 +98,7 @@ inline void Game::loadLevel(int level) {
     for (int i = 0; i < dat.numCollectibleSpawnPositions; i++) {
         collectibles.push_back(Collectible((CollectibleType)dat.collectibleTypes[i], (int)dat.collectibleData[i], dat.collectiblePositions[i]));
     }
+    minimap = dat.minimap;
 }
 
 inline void Game::update()
@@ -122,8 +132,8 @@ inline void Game::update()
     case GAME:
         if (IsKeyPressed(KEY_ENTER)) loadLevel(GetRandomValue(0, 100));
         player.update();
-        for (auto &&enemy : enemies)
-        {
+        ally.update();
+        for (auto &&enemy : enemies) {
             enemy->update();
         }
         for (auto it = enemies.begin(); it != enemies.end();) {
@@ -133,8 +143,7 @@ inline void Game::update()
                 ++ it;
             }
         }
-        for (auto &&bullet : bullets)
-        {
+        for (auto &&bullet : bullets) {
             bullet.update();
         }
         for (auto itx = bullets.begin(); itx != bullets.end();) {
@@ -146,6 +155,11 @@ inline void Game::update()
         }
         explosives.update();
         overworldParticles.update();
+
+        if (IsKeyPressed(KEY_Z)) Generator::stepChangeFrequency++;
+        if (IsKeyPressed(KEY_X)) Generator::stepChangeFrequency--;
+        if (IsKeyPressed(KEY_C)) Generator::maxStepsPerTurn++;
+        if (IsKeyPressed(KEY_V)) Generator::maxStepsPerTurn--;
         break;
     case LEVELMAKER:
         lvlMaker.update();
@@ -188,6 +202,7 @@ inline void Game::draw()
             bullet.draw();
         }
         player.draw();
+        ally.draw();
         for (auto &&enemy : enemies) {
             enemy->draw();
         }
@@ -202,11 +217,16 @@ inline void Game::draw()
         );
         overworldParticles.draw(Vector2Zero());
         EndMode2D();
+        for (auto &&collectible : collectibles) {
+            collectible.drawHUD();
+        }
+        drawMinimap();
         player.drawHUD();
         DrawFPS(10, 10);
         BeginShaderMode(vignetteShader);
         DrawRectangle(0, 0, SCREENWIDTH, SCREENHEIGHT, WHITE);
         EndShaderMode();
+        //DrawText(TextFormat("RoomFr: %d\nStepsPT: %d\nStepF:%d", Generator::roomFrequency, Generator::maxStepsPerTurn, Generator::stepChangeFrequency), 10, 30, 10, WHITE);
         break;
     case LEVELMAKER:
         lvlMaker.draw();
@@ -216,6 +236,7 @@ inline void Game::draw()
 inline void Game::unload()
 {
     ShowCursor();
+    if (IsRenderTextureValid(minimap)) UnloadRenderTexture(minimap);
     spriteManager.unload();
     soundManager.unload();
     UnloadShader(flashShader);
@@ -246,9 +267,22 @@ void applyAreaDamage(Vector2 position, float damage, float radius) {
     if (Vector2DistanceSqr(player.position, position) < 25*radius*radius) {
         player.cam.shakeExplosion((1.0f - Vector2Distance(player.position, position) / radius));
     }
+    MapLoader.tileExplosion(position);
 }
 
 void slowMo(float time, float factor) {
     slowMoTimer = time;
     slowMoFactor = factor;
+}
+
+void drawMinimap() {
+    DrawRectangleLines(10, 30, 100, 100, WHITE);
+    float startX = std::max({0.0f, player.position.x / tileDrawSize - 8});
+    float startY = std::max({0.0f, player.position.y / tileDrawSize - 8});
+    float endX = std::min({100.0f, player.position.x / tileDrawSize + 8});
+    float endY = std::min({100.0f, player.position.y / tileDrawSize + 8});
+    Rectangle srcRec = {startX, minimap.texture.height - endY, endX - startX,  - (endY - startY)};
+    Rectangle dstRec = {15, 35, 90, 90};
+    DrawTexturePro(minimap.texture, srcRec, dstRec, Vector2Zero(), 0, WHITE);
+    DrawCircle(60, 80, 2, foregroundColour);
 }

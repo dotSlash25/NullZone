@@ -15,6 +15,7 @@ private:
 
 public:
     bool active = true;
+    float range;
     bool shotByEnemy = false;
     Vector2 position = { 0 };
     Vector2 velocity = { 0 };
@@ -56,6 +57,8 @@ inline void Bullet::update()
     if (!active) return;
     velocity = Vector2Scale(Vector2{cos(angle), sin(angle)}, speed*delta);
     position = Vector2Add(velocity, position);
+    range -= speed*delta;
+    if (range <= 0) disable();
     firetime += delta;
     if (firetime > 2) active = false;
 }

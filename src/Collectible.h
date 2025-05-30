@@ -6,7 +6,9 @@ class Collectible
 {
 private:
     int spriteID;
-
+    bool hudActive = false;
+    float hudAnimTimer = 0;
+    float hudTimePassed = 0;
     float animTimer = GetRandomValue(0, 100) / 100.0f;
 public:
     bool active = true;
@@ -27,6 +29,7 @@ public:
     void loadData(CollectibleType t, int k);
 
     void draw();
+    void drawHUD();
 };
 
 Collectible::Collectible(CollectibleType t, int dat, Vector2 pos)
@@ -45,6 +48,7 @@ inline void Collectible::loadData(CollectibleType t, int k)
     switch (t)
     {
     case GUN:
+        if (k == 0) active = false;
         gType = (gunType)(k);
         spriteID = 1;
         spriteRect = gunSizes[k-1];
@@ -72,21 +76,27 @@ inline void Collectible::draw()
     animTimer += delta;
     if (animTimer > 2) animTimer = 0;
     Rectangle dstRect = {position.x, position.y, spriteRect.width*drawScale, spriteRect.height*drawScale};
-    Vector2 origin = {spriteRect.height*drawScale/2, spriteRect.height*drawScale/2};
+    Vector2 origin = {spriteRect.width*drawScale/2, spriteRect.height*drawScale/2};
     DrawTexturePro(spriteManager.sprite(spriteID), spriteRect, dstRect, origin, 0, Fade(BLACK, 0.5));
     dstRect.y += -10.0f + 5.0f*sin(2 * animTimer/2.0f * PI);
     DrawTexturePro(spriteManager.sprite(spriteID), spriteRect, dstRect, origin, 0, WHITE);
-    DrawCircleV(position, 5, YELLOW);
     if (Vector2DistanceSqr(position, player.position) < 400*(drawScale*drawScale))
     {
-        DrawText("Press E", position.x + spriteRect.width/2 - MeasureText("Press E", 10)/2, position.y + 2 + spriteRect.height, 10, WHITE);
-        if (IsKeyPressed(KEY_E)) {
+        if (type == GUN) {
+            hudActive = true;
+        }
+        int w = 7;
+        DrawRectangleLines(position.x - w, position.y + spriteRect.height + 10, 2*w, 2*w, WHITE);
+        DrawText("F", position.x - MeasureText("F", 10) / 2, position.y + spriteRect.height + 10 + (2*w - 10) / 2, 10, WHITE);
+        if (IsKeyPressed(KEY_F)) {
             active = false;
-            switch (type)
-            {
-            case GUN:
+            switch (type) {
+            case GUN: {
                 player.gun = Gun(gType);
+                float scope = GunData[(int)gType - 1].scope;
+                player.cam.setZoom(scope);
                 break;
+            }
             case AMMO:
                 player.gun.clips += ammoCount;
                 break;
@@ -97,6 +107,15 @@ inline void Collectible::draw()
                 break;
             }
         }
+    } else {
+        hudActive = false;
     }
-    
+}
+
+inline void Collectible::drawHUD() {
+    if (!hudActive) return;
+    int txtLen = MeasureText(gunNames[(int)gType].c_str(), 20);
+    int x = SCREENWIDTH - txtLen - 30;
+    DrawRectangle(x, 10, txtLen + 20, 30, foregroundColour);
+    DrawText(gunNames[(int)gType].c_str(), x + 10, 15, 20, backgroundColour);
 }

@@ -6,7 +6,7 @@ class Tilemap
 private:
     int tileSetId;
     Vector2 tileSize;
-    int data[50][50];
+    int data[100][100];
 public:
     Tilemap(int TileSetID, Vector2 TileSize);
     ~Tilemap();
@@ -38,9 +38,9 @@ inline int Tilemap::getTile(Vector2 position)
 
 inline void Tilemap::draw()
 {
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 100; i++)
     {
-        for (int j = 0; j < 50; j++)
+        for (int j = 0; j < 100; j++)
         {
             float delX = data[i][j]%4;
             float delY = (float)((int)data[i][j]/4);
@@ -52,8 +52,8 @@ inline void Tilemap::draw()
 }
 
 inline void Tilemap::clear() {
-    for (short i = 0; i < 50; i++) {
-        for (short j = 0; j < 50; j++) {
+    for (short i = 0; i < 100; i++) {
+        for (short j = 0; j < 100; j++) {
             data[i][j] = GetRandomValue(0, 3);
         }
     }

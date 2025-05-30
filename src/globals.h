@@ -1,9 +1,10 @@
 #pragma once
 
 const bool DEBUG = false;
+const bool soundEnabled = true;
 
-const int SCREENWIDTH = 800;
-const int SCREENHEIGHT = 600;
+const int SCREENWIDTH = 1200;
+const int SCREENHEIGHT = 900;
 
 const int tileDrawSize = 96;
 
@@ -15,6 +16,10 @@ Color backgroundColour = Color{23, 0, 29, 255};
 Color backgroundColour2 = Color{69, 3, 39, 255};
 Color foregroundColour2 = Color{156, 23, 59, 255};
 Color foregroundColour = Color{255, 5, 70, 255};
+
+int manhattanDistance(Vector2 from, Vector2 to) {
+    return fabs(from.x - to.x) + fabs(from.y - to.y);
+}
 
 float lerpAngle(float from, float to, float rate) {
     /*float result;
@@ -85,16 +90,26 @@ struct gunData {
     int spreadNumber;
     float spreadAngle;
     float scope;
-    float aimDownDistance;
+    float range;
+};
+
+const std::string gunNames[] = {
+    "NONE", 
+    "PISTOL",
+    "SMG",
+    "RIFLE",
+    "SHOTGUN",
+    "SNIPER",
+    "RPG"
 };
 
 const gunData GunData[] = {
-    {7, 49, 9, 0.7f, 1, false, 3*DEG2RAD, 4, 1, 0, 1, 40},
-    {30, 150, 3, 0.1f, 1, true, 8*DEG2RAD, 2, 1, 0, 1.4, 45},
-    {25, 175, 6, 0.18f, 1, true, 3*DEG2RAD, 3, 1, 0, 0.5, 50},
-    {5, 25, 18, 0.5f, 1, false, 8*DEG2RAD, 6, 3, 5*DEG2RAD, 2, 25},
-    {5, 15, 20, 0.8f, 1, false, 1*DEG2RAD, 8, 1, 0, 0.25, 100},
-    {1, 10, 25, 1, 1, false, 4*DEG2RAD, 7, 1, 0, 0.33, 75}
+    {7, 49, 9, 0.1f, 1, false, 3*DEG2RAD, 4, 1, 0, 0.8f, 350},
+    {30, 150, 3, 0.1f, 1, true, 8*DEG2RAD, 2, 1, 0, 1.25f, 300},
+    {25, 175, 6, 0.18f, 1, true, 3*DEG2RAD, 3, 1, 0, 1, 400},
+    {5, 25, 18, 0.5f, 1, false, 8*DEG2RAD, 6, 3, 5*DEG2RAD, 1.4f, 200},
+    {5, 15, 20, 0.8f, 1, false, 1*DEG2RAD, 8, 1, 0, 0.6f, 600},
+    {1, 10, 25, 1, 1, false, 4*DEG2RAD, 7, 1, 0, 0.75f, 500}
 };
 
 void drawHealthBar(Rectangle rect, float health) {

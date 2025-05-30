@@ -6,9 +6,12 @@ namespace Generator {
     int roomsCount = 0;
 
     int maxSteps = 1500;
+    int maxStepsPerTurn = 4;
+    int stepChangeFrequency = 2;
+    int roomFrequency = 20;
 
     bool isValidPoint(Vector2 point) {
-        bool invalid = point.x <= 0 || point.y <= 0 || point.x >= 49 || point.y >= 49;
+        bool invalid = point.x <= 0 || point.y <= 0 || point.x >= 99 || point.y >= 99;
         return !invalid;
     }
     
@@ -83,16 +86,15 @@ namespace Generator {
         int stepsSinceLastTurn[5] = { 0 };
         int totalSteps = 0;
 
-        walkers[0] = {GetRandomValue(1, 49), GetRandomValue(1, 49)};
+        walkers[0] = {GetRandomValue(30, 70), GetRandomValue(30, 70)};
         walkerDirections[0] = GetRandomValue(0, 3);
-        printf("Im here\n");
         
         Vector2* walkedAreas = (Vector2*)malloc(maxSteps*sizeof(Vector2));
         while (totalSteps < maxSteps) {
             for (int i = 0; i < numWalkers; i++) {
                 walkedAreas[totalSteps++] = walkers[i];
                 if (totalSteps == maxSteps) break;
-                if (GetRandomValue(0, 100) < 25 || stepsSinceLastTurn[i] >= 6) {
+                if (GetRandomValue(0, 100) < stepChangeFrequency || stepsSinceLastTurn[i] >= maxStepsPerTurn) {
                     changeDirection(&walkerDirections[i]);
                     stepsSinceLastTurn[i] = 0;
                 } else {
@@ -105,20 +107,35 @@ namespace Generator {
                     stepsSinceLastTurn[i]++;
                 }
                 if (GetRandomValue(0, 100) < 3 && numWalkers < 5) {
-                    walkers[numWalkers] = {GetRandomValue(1, 49), GetRandomValue(1, 49)};
+                    walkers[numWalkers] = walkedAreas[GetRandomValue(0, totalSteps-1)];
                     walkerDirections[numWalkers] = GetRandomValue(0, 3);
                     numWalkers++;
-                    printf("Spawned %d\n", numWalkers);
+                }
+                if (GetRandomValue(0, 100) < 5 && data.numEnemySpawnPositions < 39) {
+                    if (manhattanDistance(walkers[i], walkedAreas[0]) > 15)
+                        placeEnemy(&data, walkers[i]);
+                }
+                if (GetRandomValue(0, 100) < 5 && data.numCollectibleSpawnPositions < 39) {
+                    if (manhattanDistance(walkers[i], walkedAreas[0]) > 7)
+                        placeCollectible(&data, walkers[i]);
                 }
             }
         }
-
-        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[totalSteps - 1], tileDrawSize), {tileDrawSize/2, tileDrawSize/2});
+        if (IsRenderTextureValid(data.minimap)) UnloadRenderTexture(data.minimap);
+        data.minimap = LoadRenderTexture(100, 100);
+        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[0], tileDrawSize), {tileDrawSize/2, tileDrawSize/2});
+        BeginTextureMode(data.minimap);
+        DrawRectangle(0, 0, 100, 100, backgroundColour2);
         for (int i = 0; i < maxSteps; i++) {
             tilemap->setTile(walkedAreas[i], GetRandomValue(8, 11));
+            DrawPixelV(walkedAreas[i], foregroundColour2);
         }
-        for (int i = 0; i < 50; i++) {
-            for (int j = 0; j < 50; j++) {
+        for (int i = 0; i < data.numEnemySpawnPositions; i++) {
+            DrawPixelV(Vector2Scale(Vector2Subtract(data.enemySpawnPositions[i], {tileDrawSize/2, tileDrawSize/2}), 1.0/tileDrawSize), foregroundColour2);
+        }
+        EndTextureMode();
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 100; j++) {
                 if (tilemap->getTile({i, j}) <= 3 && tilemap->getTile({i, j+1}) > 7) {
                     tilemap->setTile({i, j+1}, GetRandomValue(4, 7));
                 }
@@ -126,6 +143,7 @@ namespace Generator {
         }
 
         free(walkedAreas);
+        printf("Enemies: %d\tCollectibles: %d\n", data.numEnemySpawnPositions, data.numCollectibleSpawnPositions);
 
         return data;
     }
@@ -148,18 +166,18 @@ namespace Generator {
 
         createRoom(walkedAreas, totalSteps, walkerPosition);
         while (totalSteps < requiredSteps) {
-            if (GetRandomValue(0, 100) < 5 && data.numEnemySpawnPositions < 30) {
+            if (GetRandomValue(0, 100) < 5 && data.numEnemySpawnPositions < 31) {
                 placeEnemy(&data, walkerPosition);
             }
             if (totalSteps > 800) {
-                if (GetRandomValue(0, 100) < 5 && data.numCollectibleSpawnPositions < 30) {
+                if (GetRandomValue(0, 100) < 5 && data.numCollectibleSpawnPositions < 31) {
                     placeCollectible(&data, walkerPosition);
                 }
             }
             walkedAreas[totalSteps++] = walkerPosition;
-            if (GetRandomValue(0, 100) < 25 && stepsSinceLastTurn >= 6) {
+            if (GetRandomValue(0, 100) < roomFrequency) createRoom(walkedAreas, totalSteps, walkerPosition);
+            if (GetRandomValue(0, 100) < stepChangeFrequency && stepsSinceLastTurn >= maxStepsPerTurn) {
                 changeDirection(&walkerDirection);
-                if (GetRandomValue(0, 100) < 40) createRoom(walkedAreas, totalSteps, walkerPosition);
                 stepsSinceLastTurn = 0;
             } else {
                 targetPosition = Vector2Add(walkerPosition, toDir(walkerDirection));

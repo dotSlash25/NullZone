@@ -113,7 +113,7 @@ inline void Player::draw() {
 }
 
 inline void Player::updateHUD() {
-    hud.update(0, gun.type, health/100.0f, gun.bulletsIn, gun.clips);
+    hud.update(gun.type, health/100.0f, gun.bulletsIn, gun.clips);
 }
 
 inline void Player::fire() {
@@ -169,12 +169,6 @@ inline void Player::updateGun() {
 }
 
 inline void Player::handleInput() {
-
-    cam.zoomBy(GetMouseWheelMove()/5);
-    if (IsKeyPressed(KEY_SPACE) && dashing == 0) {
-        dashVelocity = Vector2Scale(velocity, 8);
-        dashing = true;
-    }
     velocity = Vector2{0, 0};
     if (IsKeyDown(KEY_A))
     {
@@ -188,7 +182,11 @@ inline void Player::handleInput() {
     } else if (IsKeyDown(KEY_S)) {
         velocity.y = 1;
     }
-    if(IsKeyPressed(KEY_F)) {
+    if (IsKeyPressed(KEY_SPACE) && dashing == 0) {
+        dashVelocity = Vector2Scale(Vector2Normalize(velocity), 10.0f*maxSpeed);
+        dashing = true;
+    }
+    if(IsKeyPressed(KEY_G)) {
         throwGun(position, gun.type);
         gun = Gun(NONE);
     }
@@ -235,7 +233,10 @@ inline void Player::handleMovement() {
     position = Vector2{collider.x + 22.5f, collider.y + 32.5f};
 
     aimDel = Vector2Add(aimDel, Vector2Scale(Vector2Subtract(getGlobalMousePosition(), cam.cam.target), 0.21 * delta));
-    aimDel = Vector2ClampValue(aimDel, -gun.aimDownLimit, gun.aimDownLimit);
+    aimDel = Vector2ClampValue(aimDel, -20/gun.scope, 20/gun.scope);
+
+    float zoom = gun.scope * (1 - Vector2LengthSqr(velocity) / (maxSpeed * maxSpeed) * 0.02f);
+    cam.setZoom(zoom);
 }
 
 inline void Player::applyDamage(float damage, Vector2 direction) {
@@ -249,4 +250,5 @@ inline void Player::applyDamage(float damage, Vector2 direction) {
         slowMo(0.2f, 0.6f);
     }
     knockback = Vector2Add(knockback, Vector2Scale(direction, 200));
+    knockback = Vector2ClampValue(knockback, -2*maxSpeed, 2*maxSpeed);
 }

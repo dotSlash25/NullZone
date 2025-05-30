@@ -6,13 +6,14 @@
 
 typedef struct mapData {
     short numEnemySpawnPositions;
-    Vector2 enemySpawnPositions[32];
-    short enemyTypes[32];
+    Vector2 enemySpawnPositions[40];
+    short enemyTypes[40];
     short numCollectibleSpawnPositions;
-    Vector2 collectiblePositions[32];
-    short collectibleTypes[32];
-    short collectibleData[32];
+    Vector2 collectiblePositions[40];
+    short collectibleTypes[40];
+    short collectibleData[40];
     Vector2 playerPosition;
+    RenderTexture2D minimap;
 } mapData;
 
 #include "proceduralGenerator.h"
@@ -41,6 +42,7 @@ public:
     CollisionInfo checkCollisionsInfo(Rectangle rec, Vector2 velo);
     bool checkCollisions(Rectangle rec);
     bool rayCast(Vector2 position, Vector2 target);
+    void tileExplosion(Vector2 position);
 };
 
 mapLoader::mapLoader()
@@ -181,6 +183,21 @@ inline bool mapLoader::rayCast(Vector2 position, Vector2 target) {
     return found;
 }
 
+inline void mapLoader::tileExplosion(Vector2 position) {
+    int x = position.x / tileDrawSize;
+    int y = position.y / tileDrawSize;
+    for (int i = x - 1; i <= x + 1; i++) {
+        for (int j = y - 1; j <= y + 1; j++) {
+            if (i <= 0 || i >= 99 || j <= 0 || j >= 99) continue;
+            if (tiles.getTile({i, j}) < 4) {
+                tiles.setTile({i, j}, GetRandomValue(12, 15));
+                if (tiles.getTile({i, j + 1}) > 3 && tiles.getTile({i, j + 1}) < 8) tiles.setTile({i, j + 1}, GetRandomValue(8, 13));
+                if (tiles.getTile({i, j - 1}) < 4) tiles.setTile({i, j}, GetRandomValue(4, 7));
+            }
+        }
+    }
+}
+
 inline CollisionInfo mapLoader::checkCollisionsInfo(Rectangle rec, Vector2 velo) {
     velo = Vector2Scale(velo, delta);
     int x = (int)rec.x/tileDrawSize;
@@ -232,5 +249,5 @@ inline CollisionInfo mapLoader::checkCollisionsInfo(Rectangle rec, Vector2 velo)
 }
 
 inline mapData mapLoader::generateLevel(int seed) {
-    return Generator::generateLevel(seed, &tiles);
+    return Generator::generateLevelnew(seed, &tiles);
 }

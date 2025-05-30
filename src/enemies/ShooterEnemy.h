@@ -4,6 +4,9 @@ class ShooterEnemy: public Enemy {
         Vector2 patrolPoint = { 0 };
         bool dirtyPatrolPoint = true;
         float patrolWaitTime = 0;
+        float reactionTime = GetRandomValue(0, 100) * 1.2f * 0.01f + 0.8f;
+        float range = GetRandomValue(200, 400);
+        float timeSinceInSight = 0;
     
         Vector2 wallRepulsion = { 0 };
     public:
@@ -20,6 +23,7 @@ class ShooterEnemy: public Enemy {
             gun = Gun(gType);
             state = IDLE;
             sprite.refresh();
+            range = gun.range;
             sprite.scale = 5;
             gun.update({position.x + GetRandomValue(-100, 100), position.y + GetRandomValue(-100, 100)}, position);
         }
@@ -47,7 +51,13 @@ class ShooterEnemy: public Enemy {
                     playerInSight = MapLoader.rayCast(position, player.position);
                     foundBreadCrumb = false;
                     if (playerInSight) {
-                        moveTarget = player.position;
+                        if (Vector2DistanceSqr(position, player.position) <= range*range) {
+                            moveTarget = position;
+                            sprite.play(0);
+                        } else {
+                            moveTarget = player.position;
+                            sprite.play(1);
+                        }
                         target = player.position;
                     } else {
                         float minCost = 0;
@@ -122,6 +132,8 @@ class ShooterEnemy: public Enemy {
     
             if (velocity.x > 0) sprite.flipH = false;
             else if (velocity.x < 0) sprite.flipH = true;
+            else if (target.x > position.x) sprite.flipH = false;
+            else if (target.x < position.x) sprite.flipH = true;
     
             velocity = Vector2Add(velocity, knockback);
     
@@ -133,7 +145,15 @@ class ShooterEnemy: public Enemy {
     
             position = Vector2{collider.x + 20, collider.y + 40};
             gun.update(target, Vector2{position.x, position.y});
-            if (playerInSight) gun.fire(true);
+            if (playerInSight) {
+                if (timeSinceInSight > reactionTime && Vector2DistanceSqr(position, player.position) <= range*range) {
+                    gun.fire(true);
+                } else {
+                    timeSinceInSight += delta;
+                }
+            } else {
+                timeSinceInSight = std::max(timeSinceInSight - delta, 0.0f);
+            }
             sprite.update();
             baseUpdate();
         }
@@ -148,6 +168,7 @@ class ShooterEnemy: public Enemy {
                 DrawCircleV(patrolPoint, 5, RED);
                 DrawCircleV(moveTarget, 10, GREEN);
                 DrawLineV(position, Vector2Add(position, wallRepulsion), WHITE);
+                DrawText(TextFormat("%.2f %.2f\n%f", timeSinceInSight, reactionTime, Vector2Distance(position, player.position)), position.x, position.y, 10, WHITE);
             }
         }
         

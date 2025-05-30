@@ -2,43 +2,35 @@
 
 class HUD {
 private:
-    float gunScales[2] = { 0 };
-    int selectedGunID = 0;
-    int selectedGunTypes[2] = { 0 };
+    float gunScale = 0;
+    int selectedGunType = 0;
     float health = 0;
     int bullets = 0;
     int clips = 0;
+    float bulletScale = 1.0f;
 public:
-    gunType guns[2];
-    HUD();
-    void update(int selectedGun, gunType selectedGunType, float health, int bullets, int clips);
+    void update(gunType _selectedGunType, float health, int bullets, int clips);
     void draw();
 };
 
-HUD::HUD() {
-    guns[0] = NONE;
-    guns[1] = NONE;
-}
-
-inline void HUD::update(int selectedGun, gunType selectedGunType, float healthRatio, int _bullets, int _clips) {
-    selectedGunID = selectedGun;
-    selectedGunTypes[selectedGun] = (int)selectedGunType;
+inline void HUD::update(gunType _selectedGunType, float healthRatio, int _bullets, int _clips) {
+    selectedGunType = (int)_selectedGunType;
     health = healthRatio;
+    if (bullets != _bullets) bulletScale = 2;
     bullets = _bullets;
     clips = _clips;
+    bulletScale = lerp(bulletScale, 1, 10);
 }
 
 inline void HUD::draw() {
-    for (short i = 0; i < 2; i++) {
-        DrawRectangleLinesEx({i*45.0f + 10.0f, SCREENHEIGHT - 50, 40, 40}, 2, foregroundColour2);
-        Rectangle srcTexture = gunSizes[selectedGunTypes[selectedGunID] - 1];
-        float scale = 5.4f;
-        Vector2 org = {srcTexture.width * scale / 2, srcTexture.height * scale / 2};
-        Rectangle dst = {i*45.0f + 10.0f + 20.0f, SCREENHEIGHT - 50.0f + 20.0f, srcTexture.width*scale, srcTexture.height*scale};
-        DrawTexturePro(spriteManager.sprite(1), srcTexture, dst, org, -45, WHITE);
-    }
+    DrawRectangleLinesEx({45.0f + 10.0f, SCREENHEIGHT - 50, 40, 40}, 2, foregroundColour2);
+    Rectangle srcTexture = gunSizes[selectedGunType - 1];
+    float scale = 5.4f;
+    Vector2 org = {srcTexture.width * scale / 2, srcTexture.height * scale / 2};
+    Rectangle dst = {45.0f + 10.0f + 20.0f, SCREENHEIGHT - 50.0f + 20.0f, srcTexture.width*scale, srcTexture.height*scale};
+    DrawTexturePro(spriteManager.sprite(1), srcTexture, dst, org, -45, WHITE);
     Vector2 mousePos = GetMousePosition();
     mousePos = Vector2Subtract(mousePos, {7, 7});
     DrawTextureEx(spriteManager.sprite(10), mousePos, 0, 2, WHITE);
-    DrawText(TextFormat("%i/%i", bullets, clips), SCREENWIDTH - MeasureText(TextFormat("%i/%i", bullets, clips), 20) - 10, SCREENHEIGHT - 30, 20, WHITE);
+    DrawText(TextFormat("%i/%i", bullets, clips), SCREENWIDTH - MeasureText(TextFormat("%i/%i", bullets, clips), 20 * bulletScale) - 10, SCREENHEIGHT - 10 - 20*bulletScale, 20*bulletScale, WHITE);
 }

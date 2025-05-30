@@ -12,6 +12,8 @@ Game game = Game();
 int main() {
     InitWindow(SCREENWIDTH, SCREENHEIGHT, "Netherium Mines");
     InitAudioDevice();
+    if (!soundEnabled) SetMasterVolume(0);
+    else SetMasterVolume(100);
     game.init();
     SetTargetFPS(GetMonitorRefreshRate(0));
     while(!WindowShouldClose()) {
