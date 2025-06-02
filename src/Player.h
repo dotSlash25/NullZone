@@ -26,28 +26,28 @@ private:
     float lastBreadCrumbTime = 0;
     bool justHit = false;
     float hitTimer = 0;
-    bool dead = false;
     HUD hud;
-
+    
     float explosivePrimeTimer = 0;
-
+    
     Vector2 spriteSize;
-
+    
     Vector2 getGlobalMousePosition();
     void updateBreadcrumbs();
     void updateGun();
     void handleInput();
     void handleMovement();
-public:
+    public:
     Player();
     ~Player();
     Vector2 position;
     Vector2 velocity;
     Vector2 knockback;
     camera cam = camera();
-    Gun gun = Gun(NONE);
-
+    Gun gun = Gun(PISTOL);
+    
     float health = 100;
+    bool dead = false;
     
     void update();
     void draw();
@@ -55,6 +55,7 @@ public:
     void updateHUD();
     void drawHUD();
     void fire();
+    void reset();
     void applyDamage(float damage, Vector2 direction);
 
     std::vector<breadCrumb> breadCrumbs;
@@ -109,7 +110,10 @@ inline void Player::draw() {
     sprite.draw(position);
     if (justHit) EndShaderMode();
     if (!dead) gun.draw();
-    drawHealthBar({position.x - 30, position.y - 60, 60, 10}, health);
+    if (explosivePrimeTimer > 0) {
+        Vector2 mpos = getGlobalMousePosition();
+        drawBar({mpos.x - 30, mpos.y - 30, 60, 10}, 1 - explosivePrimeTimer / 3.0f);
+    }
 }
 
 inline void Player::updateHUD() {
@@ -232,8 +236,8 @@ inline void Player::handleMovement() {
     collider = MapLoader.checkCollisions(collider, velocity);
     position = Vector2{collider.x + 22.5f, collider.y + 32.5f};
 
-    aimDel = Vector2Add(aimDel, Vector2Scale(Vector2Subtract(getGlobalMousePosition(), cam.cam.target), 0.21 * delta));
-    aimDel = Vector2ClampValue(aimDel, -20/gun.scope, 20/gun.scope);
+    aimDel = Vector2Add(aimDel, Vector2Scale(Vector2Subtract(getGlobalMousePosition(), cam.cam.target), 0.5 * delta));
+    aimDel = Vector2ClampValue(aimDel, -30/gun.scope, 30/gun.scope);
 
     float zoom = gun.scope * (1 - Vector2LengthSqr(velocity) / (maxSpeed * maxSpeed) * 0.02f);
     cam.setZoom(zoom);
@@ -251,4 +255,11 @@ inline void Player::applyDamage(float damage, Vector2 direction) {
     }
     knockback = Vector2Add(knockback, Vector2Scale(direction, 200));
     knockback = Vector2ClampValue(knockback, -2*maxSpeed, 2*maxSpeed);
+}
+
+inline void Player::reset() {
+    dead = false;
+    health = 100;
+    Gun gun = Gun(PISTOL);
+    sprite.playingOnce = false;
 }

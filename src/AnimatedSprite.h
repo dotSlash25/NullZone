@@ -15,9 +15,8 @@ private:
     int height;
     int swidth;
     int sheight;
-    bool playingOnce = false;
     bool paused = false;
-public:
+    public:
     int frame = 0;
     AnimatedSprite(int sprite, int numAnims, int* frames, int FPS);
     ~AnimatedSprite();
@@ -28,9 +27,10 @@ public:
     void draw(Vector2 position, Color tint);
     void refresh();
     Vector2 getSize();
-
+    
     void debugText();
     
+    bool playingOnce = false;
     bool flipH = false;
     float scale = 1;
 };

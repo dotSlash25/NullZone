@@ -184,6 +184,7 @@ inline void OverworldParticles::draw(Vector2 referencePoint) {
     for (short i = 0; i < 100; i++) {
         int delX = particles[i].spriteIndex%4;
         int delY = (int)(particles[i].spriteIndex/4);
-        DrawTexturePro(spriteManager.sprite(5), Rectangle{delX*16, delY*16, 16, 16}, Rectangle{particles[i].position.x, particles[i].position.y, 16, 16}, Vector2Zero(), 0.0f, WHITE);
+        float scale = 2;
+        DrawTexturePro(spriteManager.sprite(5), Rectangle{delX*16, delY*16, 16, 16}, Rectangle{particles[i].position.x, particles[i].position.y, 16*scale, 16*scale}, Vector2Zero(), 0.0f, WHITE);
     }
 }

@@ -62,6 +62,8 @@ public:
     void update(Vector2 aim, Vector2 pos);
     void draw();
     void reload();
+    void ammoPickup();
+
 };
 
 inline void Gun::loadData(gunType t)
@@ -212,4 +214,8 @@ inline void Gun::reload() {
         bulletsIn = clips;
         clips = 0;
     }
+}
+
+inline void Gun::ammoPickup() {
+    clips = GunData[type - 1].clips;
 }

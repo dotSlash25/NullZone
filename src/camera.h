@@ -17,6 +17,7 @@ public:
     void setZoom(float value);
     void shake(Vector2 init);
     void shakeExplosion(float dis);
+    Rectangle getViewRect();
     ~camera();
 };
 
@@ -60,6 +61,7 @@ inline void camera::setZoom(float value)
 inline void camera::shake(Vector2 init)
 {
     shakeBias = init;
+    shakeBias = Vector2ClampValue(shakeBias, -1, 1);
     shakeValue += 0.05;
 }
 
@@ -73,4 +75,10 @@ inline void camera::shakeExplosion(float dis) {
 
 camera::~camera()
 {
+}
+
+inline Rectangle camera::getViewRect() {
+    Vector2 zero = GetScreenToWorld2D({0, 0}, this->cam);
+    Vector2 corner = GetScreenToWorld2D({SCREENWIDTH, SCREENHEIGHT}, this->cam);
+    return {zero.x, zero.y, corner.x - zero.x, corner.y - zero.y};
 }

@@ -6,6 +6,7 @@ void throwGun(Vector2 position, gunType type);
 void applyAreaDamage(Vector2 position, float damage, float radius);
 void slowMo(float time, float factor);
 void drawMinimap();
+void drawGameOverScreen();
 
 Shader flashShader;
 Shader vignetteShader;
@@ -37,6 +38,7 @@ std::vector<Bullet> bullets;
 std::vector<Collectible> collectibles;
 
 Ally ally = Ally({0, 0}, SMG);
+AllySpawner allySpawner = AllySpawner();
 
 Explosives explosives;
 
@@ -52,6 +54,8 @@ LevelMaker lvlMaker;
 float slowMoTimer = 0;
 float slowMoFactor = 0.5;
 float percentLoaded = 0.0f;
+bool gameWon = false;
+bool gameOver = false;
 
 RenderTexture2D minimap;
 
@@ -68,6 +72,8 @@ public:
     void draw();
 
     void unload();
+
+    Rectangle drawRect = { 0 };
 };
 
 Game::Game()
@@ -88,17 +94,20 @@ inline void Game::init() {
 inline void Game::loadLevel(int level) {
     mapData dat = MapLoader.generateLevel(level);
     printf("Loading seed: %d\n", level);
+    player.reset();
     player.position = dat.playerPosition;
     ally = Ally(player.position, SMG);
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(0, 5)));
         else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
         else enemies.push_back(std::make_unique<WalkerEnemy>(dat.enemySpawnPositions[i]));
+        if (allySpawner.position == Vector2Zero() && GetRandomValue(0, 100) < 5) allySpawner.position = dat.enemySpawnPositions[i];
     }
     for (int i = 0; i < dat.numCollectibleSpawnPositions; i++) {
         collectibles.push_back(Collectible((CollectibleType)dat.collectibleTypes[i], (int)dat.collectibleData[i], dat.collectiblePositions[i]));
     }
     minimap = dat.minimap;
+    allySpawner.init();
 }
 
 inline void Game::update()
@@ -131,7 +140,13 @@ inline void Game::update()
         break;
     case GAME:
         if (IsKeyPressed(KEY_ENTER)) loadLevel(GetRandomValue(0, 100));
+        drawRect = player.cam.getViewRect();
+        if (player.dead) {
+            gameOver = true;
+            ShowCursor();
+        }
         player.update();
+        allySpawner.update();
         ally.update();
         for (auto &&enemy : enemies) {
             enemy->update();
@@ -155,11 +170,6 @@ inline void Game::update()
         }
         explosives.update();
         overworldParticles.update();
-
-        if (IsKeyPressed(KEY_Z)) Generator::stepChangeFrequency++;
-        if (IsKeyPressed(KEY_X)) Generator::stepChangeFrequency--;
-        if (IsKeyPressed(KEY_C)) Generator::maxStepsPerTurn++;
-        if (IsKeyPressed(KEY_V)) Generator::maxStepsPerTurn--;
         break;
     case LEVELMAKER:
         lvlMaker.update();
@@ -186,9 +196,14 @@ inline void Game::draw()
         break;
     case LEVELSELECT: {
             drawMenuBackground("SELECT LEVEL");
+            DrawText("Press ENTER to play random seed", 500, 500, 20, WHITE);
             int lvl = drawLevelButtons(Rectangle{100, 100, 300, 300}, 10);
+            if (IsKeyPressed(KEY_ENTER)) lvl = GetRandomValue(100, 1000);
             if (lvl != -1) {
+                collectibles.clear();
+                enemies.clear();
                 loadLevel(lvl);
+                gameOver = false;
                 currentScene = GAME;
                 HideCursor();
             }
@@ -196,14 +211,16 @@ inline void Game::draw()
         }
     case GAME:
         BeginMode2D(player.cam.cam);
-        MapLoader.draw();
+        MapLoader.draw(drawRect);
         for (auto &&bullet : bullets)
         {
             bullet.draw();
         }
         player.draw();
         ally.draw();
+        allySpawner.draw();
         for (auto &&enemy : enemies) {
+            if (!CheckCollisionPointRec(enemy->position, drawRect)) continue;
             enemy->draw();
         }
         explosives.draw();
@@ -226,10 +243,13 @@ inline void Game::draw()
         BeginShaderMode(vignetteShader);
         DrawRectangle(0, 0, SCREENWIDTH, SCREENHEIGHT, WHITE);
         EndShaderMode();
-        //DrawText(TextFormat("RoomFr: %d\nStepsPT: %d\nStepF:%d", Generator::roomFrequency, Generator::maxStepsPerTurn, Generator::stepChangeFrequency), 10, 30, 10, WHITE);
+        if (gameOver) {
+            drawGameOverScreen();
+        }
         break;
     case LEVELMAKER:
         lvlMaker.draw();
+        break;
     }
 }
 
@@ -285,4 +305,13 @@ void drawMinimap() {
     Rectangle dstRec = {15, 35, 90, 90};
     DrawTexturePro(minimap.texture, srcRec, dstRec, Vector2Zero(), 0, WHITE);
     DrawCircle(60, 80, 2, foregroundColour);
+}
+
+void drawGameOverScreen() {
+    DrawRectangle(0, 0, SCREENWIDTH, SCREENHEIGHT, Fade(BLACK, 0.7));
+    DrawText("GAME OVER", SCREENWIDTH/2 - MeasureText("GAME OVER", 60)/2, SCREENHEIGHT/2 - 70, 60, foregroundColour);
+    DrawText("Press E to retry", SCREENWIDTH/2 - MeasureText("Press E to retry", 30)/2, SCREENHEIGHT/2, 30, WHITE);
+    if (IsKeyPressed(KEY_E)) {
+        currentScene = LEVELSELECT;
+    }
 }

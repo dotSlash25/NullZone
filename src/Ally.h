@@ -5,7 +5,7 @@ class Ally {
         Vector2 velocity = Vector2Zero();
         Vector2 size = Vector2Zero();
         Vector2 knockback = Vector2Zero();
-        bool active = true;
+        bool active = false;
         bool dead = false;
         float removeTimer = 5;
         int health = 0;
@@ -58,7 +58,6 @@ class Ally {
         Enemy* targetEnemy = NULL;
         
         Ally(Vector2 pos, gunType gType) {
-            active = true;
             position = pos;
             speed = 200;
             gun = Gun(gType);
@@ -72,6 +71,7 @@ class Ally {
         }
     
         void update() {
+            if (!active) return;
             if (health < 0 && !dead) {
                 sprite.playOnce(2);
                 return;
@@ -138,6 +138,7 @@ class Ally {
         }
     
         void draw() {
+            if (!active) return;
             sprite.draw(position);
             if (justHit) {
                 sprite.draw(position, WHITE);
@@ -168,5 +169,46 @@ class Ally {
                 }
             }
         }
+
+        void spawn(Vector2 pos) {
+            active = true;
+            position = pos;
+        }
 };
+
+extern Ally ally;
+
+class AllySpawner {
+    private:
+    AnimatedSprite sprite = AnimatedSprite(14, 1, (int[]){10}, 10);
+    bool active = false;
     
+    public:
+    Vector2 position = { 0 };
+
+    void init() {
+        sprite.refresh();
+        sprite.scale = 3;
+        active = true;
+    }
+
+    void update() {
+        if (!active) return;
+        sprite.update();
+    }
+
+    void draw() {
+        if (!active) return;
+        sprite.draw(position);
+        if (Vector2DistanceSqr(position, player.position) < 900) {
+            int w = 7;
+            DrawRectangleLines(position.x - w, position.y + 10, 2*w, 2*w, WHITE);
+            DrawText("E", position.x - MeasureText("E", 10) / 2, position.y + 10 + (2*w - 10) / 2, 10, WHITE);
+
+            if (IsKeyPressed(KEY_E)) {
+                active = false;
+                ally.spawn(position);
+            }
+        }
+    }
+};

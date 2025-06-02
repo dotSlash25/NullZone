@@ -24,13 +24,13 @@ class WalkerEnemy: public Enemy {
                     knockback = Vector2Scale(del, -speed/4);
                 }
 
-                if (Vector2DistanceSqr(position, player.position) > 225000 && !MapLoader.rayCast(position, player.position)) {
+                if (Vector2DistanceSqr(position, player.position) > 225000) {
                     state = IDLE;
                     sprite.play(0);
                 }
             } else {
                 velocity = lerp(velocity, Vector2Zero(), 10);
-                if (Vector2DistanceSqr(position, player.position) < 81000 && MapLoader.rayCast(position, player.position)) {
+                if (Vector2DistanceSqr(position, player.position) < 144000) {
                     state = CHASING;
                     sprite.play(1);
                 }

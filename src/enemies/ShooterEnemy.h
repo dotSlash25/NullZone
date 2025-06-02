@@ -144,7 +144,7 @@ class ShooterEnemy: public Enemy {
             wallRepulsion = info.repulsiveDirection;
     
             position = Vector2{collider.x + 20, collider.y + 40};
-            gun.update(target, Vector2{position.x, position.y});
+            gun.update((playerInSight) ? target : moveTarget, Vector2{position.x, position.y});
             if (playerInSight) {
                 if (timeSinceInSight > reactionTime && Vector2DistanceSqr(position, player.position) <= range*range) {
                     gun.fire(true);

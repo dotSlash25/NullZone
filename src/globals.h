@@ -112,10 +112,11 @@ const gunData GunData[] = {
     {1, 10, 25, 1, 1, false, 4*DEG2RAD, 7, 1, 0, 0.75f, 500}
 };
 
-void drawHealthBar(Rectangle rect, float health) {
-    DrawRectangleRec(rect, BLACK);
-    float w = health/100 * (rect.width - 2);
-    DrawRectangleRec({rect.x + 1, rect.y + 1, w, rect.height - 2}, GREEN);
+void drawBar(Rectangle rect, float ratio) {
+    DrawRectangleRec(rect, Fade(WHITE, 0.3));
+    DrawRectangleLinesEx(rect, 1, WHITE);
+    float w = ratio * (rect.width - 2);
+    DrawRectangleRec({rect.x + 1, rect.y + 1, w, rect.height - 2}, ratio > 0.25 ? WHITE : RED);
 }
 
 Vector2 lerp(Vector2 value, Vector2 target, float rate) {

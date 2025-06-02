@@ -32,9 +32,9 @@ class BoomEnemy: public Enemy {
             
         velocity = Vector2Add(velocity, knockback);
             
-        collider = Rectangle{position.x - 10, position.y - 25, size.x, size.y};
+        collider = Rectangle{position.x - 10, position.y - 5, size.x, size.y};
         collider = MapLoader.checkCollisions(collider, velocity);
-        position = Vector2{collider.x + 10, collider.y + 25};
+        position = Vector2{collider.x + 10, collider.y + 5};
     
         baseUpdate();
         sprite.update();

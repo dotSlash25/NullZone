@@ -36,7 +36,7 @@ public:
     ~mapLoader();
     mapData loadMap(int level);
     mapData generateLevel(int seed);
-    void draw();
+    void draw(Rectangle rect);
 
     Rectangle checkCollisions(Rectangle rec, Vector2 velo);
     CollisionInfo checkCollisionsInfo(Rectangle rec, Vector2 velo);
@@ -91,9 +91,9 @@ inline mapData mapLoader::loadMap(int level)
     return data;
 }
 
-inline void mapLoader::draw()
+inline void mapLoader::draw(Rectangle rect)
 {
-    tiles.draw();
+    tiles.draw(rect);
 }
 
 inline Rectangle mapLoader::checkCollisions(Rectangle rec, Vector2 velo)

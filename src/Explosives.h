@@ -96,7 +96,7 @@ public:
             } else {
                 int swidth = 6;
                 int sheight = 6;
-                float scale = 4;
+                float scale = 4 + sinf(powf(explosivesArr[i].timePassed, 3)*8.0f);
                 Rectangle sourceRec = { 0, 0, (float)swidth, (float)sheight};
                 Rectangle dstRec = {explosivesArr[i].position.x, explosivesArr[i].position.y, swidth*scale, sheight*scale};
                 DrawTexturePro(spriteManager.sprite(9), sourceRec, dstRec, {swidth / 2 * scale, sheight / 2 * scale}, explosivesArr[i].rotation, WHITE);

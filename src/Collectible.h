@@ -73,6 +73,7 @@ inline void Collectible::loadData(CollectibleType t, int k)
 
 inline void Collectible::draw()
 {
+    if (!CheckCollisionPointRec(position, player.cam.getViewRect())) return;
     animTimer += delta;
     if (animTimer > 2) animTimer = 0;
     Rectangle dstRect = {position.x, position.y, spriteRect.width*drawScale, spriteRect.height*drawScale};
@@ -98,7 +99,7 @@ inline void Collectible::draw()
                 break;
             }
             case AMMO:
-                player.gun.clips += ammoCount;
+                player.gun.ammoPickup();
                 break;
             case MEDIKIT:
                 player.health += healAmount;

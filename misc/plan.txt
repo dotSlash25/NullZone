@@ -11,9 +11,10 @@ Ambient Sounds
 File upload mechanic
 Artstyle variation
 Rocket Launcher
+Power instead of ammo
+Init ally
 
 ####MAP COLOURS####
-
 ?/AI
 for(int i = (int)player.breadCrumbs.size() - 1; i >= 0 ; i--) {
                         if (MapLoader.rayCast(position, player.breadCrumbs[i].position) && !CheckCollisionRecs(collider, {player.breadCrumbs[i].position.x, player.breadCrumbs[i].position.y, 5, 5})) {
