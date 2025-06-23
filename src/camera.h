@@ -38,10 +38,11 @@ inline void camera::update(Vector2 pos)
 
     float randAngle = GetRandomValue(0, 360) * DEG2RAD;
     shakeOffset = Vector2Scale(Vector2Add(Vector2Rotate({1, 0}, randAngle), shakeBias), shakeValue);
+    shakeOffset = Vector2ClampValue(shakeOffset, -10, 10);
 
     if (rotTimer >= 0) {
         rotTimer -= delta;
-        cam.rotation = GetRandomValue(-30, 30) * rotTimer * 50.0f;
+        cam.rotation = GetRandomValue(-30, 30) * rotTimer * 25.0f;
         cam.rotation = Clamp(cam.rotation, -30, 30);
     }
 
@@ -61,16 +62,18 @@ inline void camera::setZoom(float value)
 inline void camera::shake(Vector2 init)
 {
     shakeBias = init;
-    shakeBias = Vector2ClampValue(shakeBias, -1, 1);
+    //shakeBias = Vector2ClampValue(shakeBias, -10, 10);
     shakeValue += 0.05;
 }
 
 inline void camera::shakeExplosion(float dis) {
     shakeBias = Vector2Zero();
-    shakeValue += 1;
-    shakeValue = Clamp(shakeValue, 0, 5);
-    rotTimer += dis/20.0f;
-    rotTimer = Clamp(rotTimer, 0, 0.08f);
+    float range = 500;
+    if (dis > range) return;
+    shakeValue += 20*(1 - dis/range);
+    shakeValue = Clamp(shakeValue, 0, 30);
+    rotTimer += (1 - dis/range);
+    rotTimer = Clamp(rotTimer, 0, 0.04f);
 }
 
 camera::~camera()

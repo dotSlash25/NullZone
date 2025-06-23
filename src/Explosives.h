@@ -11,6 +11,7 @@ struct Explosive {
     int frame;
     float scale;
     int rotation;
+    bool damageApplied;
 };
 
 Particles explosionParticles[MAX_EXPLOSIVES];
@@ -25,6 +26,7 @@ private:
         e->rotation = GetRandomValue(0, 360);
         e->velocity = Vector2Zero();
         e->scale = 10 * GetRandomValue(80, 120) / 100.0f;
+        e->damageApplied = false;
     }
 
 public:
@@ -71,8 +73,9 @@ public:
             } else if (explosivesArr[i].detonating) {
                 explosivesArr[i].timeAfterDetonation += delta;
                 explosivesArr[i].frame = (int)(explosivesArr[i].timeAfterDetonation / 0.015);
-                if (explosivesArr[i].frame == 3) {
-                    applyAreaDamage(explosivesArr[i].position, 30, 20*explosivesArr[i].scale);
+                if (explosivesArr[i].frame == 3 && !explosivesArr[i].damageApplied) {
+                    applyAreaDamage(explosivesArr[i].position, 100, 20*explosivesArr[i].scale);
+                    explosivesArr[i].damageApplied = true;
                 }
                 if (explosivesArr[i].frame >= 12) {
                     explosivesArr[i].active = false;

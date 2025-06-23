@@ -42,7 +42,7 @@ AllySpawner allySpawner = AllySpawner();
 
 Explosives explosives;
 
-Player player = Player();
+Player player;
 
 enum screens {LOADING, MAIN, LEVELSELECT, LEVELMAKER, GAME};
 
@@ -94,7 +94,8 @@ inline void Game::init() {
 inline void Game::loadLevel(int level) {
     mapData dat = MapLoader.generateLevel(level);
     printf("Loading seed: %d\n", level);
-    player.reset();
+    player = Player();
+    player.init();
     player.position = dat.playerPosition;
     ally = Ally(player.position, SMG);
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
@@ -285,7 +286,7 @@ void applyAreaDamage(Vector2 position, float damage, float radius) {
         player.applyDamage(unitDmg * damage, dir);
     }
     if (Vector2DistanceSqr(player.position, position) < 25*radius*radius) {
-        player.cam.shakeExplosion((1.0f - Vector2Distance(player.position, position) / radius));
+        player.cam.shakeExplosion(Vector2Distance(player.position, position));
     }
     MapLoader.tileExplosion(position);
 }

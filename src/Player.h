@@ -123,7 +123,7 @@ inline void Player::updateHUD() {
 inline void Player::fire() {
     if (gun.fire(false)) {
         Vector2 del = Vector2{cos(gun.rotation), sin(gun.rotation)};
-        del = Vector2Scale(del, gun.kickback*5);
+        del = Vector2Scale(del, gun.kickback*15);
         cam.shake(del);
         knockback = Vector2Normalize(Vector2Subtract(position, getGlobalMousePosition()));
         knockback = Vector2Scale(knockback, gun.kickback*50);

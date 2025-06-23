@@ -38,12 +38,10 @@ class ShooterEnemy: public Enemy {
                 case IDLE:
                     if (Vector2DistanceSqr(position, player.position) < 640000 && MapLoader.rayCast(position, player.position)) {
                         state = CHASING;
-                        sprite.play(1);
                     }
                     if (GetRandomValue(1, 100) < 5) {
                         state = PATROLLING;
                         dirtyPatrolPoint = true;
-                        sprite.play(1);
                     }
                     moveTarget = position;
                     break;
@@ -53,10 +51,8 @@ class ShooterEnemy: public Enemy {
                     if (playerInSight) {
                         if (Vector2DistanceSqr(position, player.position) <= range*range) {
                             moveTarget = position;
-                            sprite.play(0);
                         } else {
                             moveTarget = player.position;
-                            sprite.play(1);
                         }
                         target = player.position;
                     } else {
@@ -75,14 +71,12 @@ class ShooterEnemy: public Enemy {
                         moveTarget = player.breadCrumbs[bestID].position;
                         if (!foundBreadCrumb) {
                             state = IDLE;
-                            sprite.play(0);
                         }
                     }
                     break;
                 }
                 case PATROLLING:
                     if (dirtyPatrolPoint && patrolWaitTime <= 0) {
-                        sprite.play(1);
                         Vector2 newPoint = {position.x + (float)GetRandomValue(-100, 100)/100.0 * 500, position.y + (float)GetRandomValue(-100, 100)/100.0 * 500};
                         int count = 0;
                         float size = 500;
@@ -92,13 +86,11 @@ class ShooterEnemy: public Enemy {
                             count++;
                             if (count >= 5) {
                                 state = IDLE;
-                                sprite.play(0);
                                 break;
                             }
                         }
                         if (GetRandomValue(0, 100) < 5) {
                             state = IDLE;
-                            sprite.play(0);
                         }
                         patrolPoint = newPoint;
                         dirtyPatrolPoint = false;
@@ -108,7 +100,6 @@ class ShooterEnemy: public Enemy {
                             patrolPoint = position;
                             if (patrolWaitTime <= 0) {
                                 patrolWaitTime = (float)GetRandomValue(0, 100)/100.0 * 3.0;
-                                sprite.play(0);
                             }
                             else patrolWaitTime -= delta;
                         }
@@ -116,7 +107,6 @@ class ShooterEnemy: public Enemy {
     
                         if (Vector2DistanceSqr(position, player.position) < 640000 && MapLoader.rayCast(position, player.position)) {
                             state = CHASING;
-                            sprite.play(1);
                         }
     
                     }
@@ -134,6 +124,11 @@ class ShooterEnemy: public Enemy {
             else if (velocity.x < 0) sprite.flipH = true;
             else if (target.x > position.x) sprite.flipH = false;
             else if (target.x < position.x) sprite.flipH = true;
+
+            if (!dead){
+                if (Vector2LengthSqr(velocity)) sprite.play(1);
+                else sprite.play(0);
+            }
     
             velocity = Vector2Add(velocity, knockback);
     
