@@ -3,9 +3,9 @@
 class camera
 {
 private:
-    Vector2 reqTarget;
+    Vector2 reqTarget = { 0 };
     float reqZoom = 1;
-    Vector2 shakeOffset;
+    Vector2 shakeOffset = { 0 };
     float rotTimer = 0;
     Vector2 shakeBias = Vector2Zero();
     float shakeValue = 0;
@@ -62,7 +62,6 @@ inline void camera::setZoom(float value)
 inline void camera::shake(Vector2 init)
 {
     shakeBias = init;
-    //shakeBias = Vector2ClampValue(shakeBias, -10, 10);
     shakeValue += 0.05;
 }
 

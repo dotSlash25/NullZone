@@ -48,7 +48,7 @@ enum screens {LOADING, MAIN, LEVELSELECT, LEVELMAKER, GAME};
 
 screens currentScene = LOADING;
 
-OverworldParticles overworldParticles({0, 0, 4800, 4800});
+OverworldParticles overworldParticles({0, 0, 100*tileDrawSize, 100*tileDrawSize});
 LevelMaker lvlMaker;
 
 float slowMoTimer = 0;
@@ -183,8 +183,7 @@ inline void Game::update()
 
 inline void Game::draw()
 {
-    switch (currentScene)
-    {
+    switch (currentScene) {
     case LOADING:
         percentLoaded = static_cast<float>(spriteManager.unitLoaded)*50 + static_cast<float>(soundManager.unitLoaded)*50;
         DrawRectangle(0, 0, percentLoaded*SCREENWIDTH, SCREENHEIGHT, Fade(BLACK, 0.3));

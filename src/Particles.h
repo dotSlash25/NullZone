@@ -149,7 +149,8 @@ class OverworldParticles {
 public:
     Rectangle bounds = { 0 };
     Vector2 windDirection = { 0 };
-    overworldParticle particles[100];
+    static const int numParticles = 300;
+    overworldParticle particles[numParticles];
     float lastWindChanged = 0;
 
     OverworldParticles(Rectangle _bounds);
@@ -162,7 +163,7 @@ OverworldParticles::OverworldParticles(Rectangle _bounds) {
 }
 
 inline void OverworldParticles::update() {
-    for (short i = 0; i < 100; i++) {
+    for (short i = 0; i < numParticles; i++) {
         if (!particles[i].active) {
             particles[i].position = {GetRandomValue(bounds.x, bounds.width), GetRandomValue(bounds.y, bounds.height)};
             particles[i].velocity = {GetRandomValue(-300, 300), GetRandomValue(-300, 300)};
@@ -181,7 +182,7 @@ inline void OverworldParticles::update() {
 }
 
 inline void OverworldParticles::draw(Vector2 referencePoint) {
-    for (short i = 0; i < 100; i++) {
+    for (short i = 0; i < numParticles; i++) {
         int delX = particles[i].spriteIndex%4;
         int delY = (int)(particles[i].spriteIndex/4);
         float scale = 2;
