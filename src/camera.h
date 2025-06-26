@@ -53,7 +53,7 @@ inline void camera::update(Vector2 pos)
 
     float randAngle = GetRandomValue(0, 360) * DEG2RAD;
     shakeOffset = Vector2Scale(Vector2Add(Vector2Rotate({1, 0}, randAngle), shakeBias), shakeValue);
-    shakeOffset = Vector2ClampValue(shakeOffset, -10, 10);
+    shakeOffset = Vector2ClampValue(shakeOffset, -5, 5);
 
     if (rotTimer >= 0) {
         rotTimer -= delta;
