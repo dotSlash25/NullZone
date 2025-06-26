@@ -4,10 +4,11 @@ void drawMenuBackground(std::string menuName) {
 }
 
 bool drawButton(Rectangle rect, std::string text, int textSize, Color colour) {
-    DrawRectangleLinesEx(rect, 2, colour);
+    DrawRectangleLinesEx(rect, 1, WHITE);
+    DrawRectangleRec(rect, Fade(WHITE, 0.2));
     float textDrawX = rect.x + rect.width/2 - MeasureText(text.c_str(), textSize)/2;
     float textDrawY = rect.y + rect.height/2 - textSize/2;
-    DrawText(text.c_str(), textDrawX, textDrawY, textSize, colour);
+    DrawText(text.c_str(), textDrawX, textDrawY, textSize, WHITE);
     return CheckCollisionPointRec(GetMousePosition(), rect) and IsMouseButtonDown(0);
 }
 

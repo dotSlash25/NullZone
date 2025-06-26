@@ -251,3 +251,5 @@ inline CollisionInfo mapLoader::checkCollisionsInfo(Rectangle rec, Vector2 velo)
 inline mapData mapLoader::generateLevel(int seed) {
     return Generator::generateLevelnew(seed, &tiles);
 }
+
+extern mapLoader MapLoader;

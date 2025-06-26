@@ -104,6 +104,9 @@ inline void Gun::shoot(bool isEnemy)
         b.range = range;
         b.damage = damage;
         b.position = Vector2Add(position, Vector2Rotate(Vector2{srcTexture.width*5.4f, 0}, angle));
+        if (this->type == RPG) {
+            b.setExplosive();
+        }
         bullets.push_back(b);
         lastFired = 0;
     }

@@ -10,7 +10,7 @@
 Game game = Game();
 
 int main() {
-    InitWindow(SCREENWIDTH, SCREENHEIGHT, "Netherium Mines");
+    InitWindow(SCREENWIDTH, SCREENHEIGHT, "NullZone");
     InitAudioDevice();
     if (!soundEnabled) SetMasterVolume(0);
     else SetMasterVolume(100);

@@ -24,7 +24,7 @@
 .PHONY: all clean
 
 # Define required raylib variables
-PROJECT_NAME       ?= test
+PROJECT_NAME       ?= NullZone
 RAYLIB_VERSION     ?= 4.2.0
 RAYLIB_PATH        ?= C:/raylib/raylib
 

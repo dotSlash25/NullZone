@@ -19,7 +19,7 @@ class Ally {
         Vector2 patrolPoint = { 0 };
         bool dirtyPatrolPoint = true;
         float patrolWaitTime = 0;
-        float reactionTime = GetRandomValue(0, 100) * 1.2f * 0.01f + 0.8f;
+        float reactionTime = GetRandomValue(0, 100) * 0.5f * 0.01f + 0.2f;
         float range = GetRandomValue(200, 400);
         float timeSinceInSight = 0;
     

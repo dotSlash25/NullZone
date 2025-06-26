@@ -17,9 +17,9 @@ Shader vignetteShader;
 #include "src/SoundsManager.h"
 #include "src/AnimatedSprite.h"
 #include "src/mapLoader.h"
+#include "src/Explosives.h"
 #include "src/Gun.h"
 #include "src/HUD.h"
-#include "src/Explosives.h"
 #include "src/Player.h"
 #include "src/Enemy.h"
 
@@ -59,12 +59,8 @@ bool gameOver = false;
 
 RenderTexture2D minimap;
 
-class Game
-{
+class Game {
 public:
-
-    Game();
-    ~Game();
     
     void init();
     void loadLevel(int level);
@@ -75,14 +71,6 @@ public:
 
     Rectangle drawRect = { 0 };
 };
-
-Game::Game()
-{
-}
-
-Game::~Game()
-{
-}
 
 inline void Game::init() {
     spriteManager.loadSprites();
@@ -99,7 +87,7 @@ inline void Game::loadLevel(int level) {
     player.position = dat.playerPosition;
     ally = Ally(player.position, SMG);
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
-        if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(0, 5)));
+        if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(1, 6)));
         else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
         else enemies.push_back(std::make_unique<WalkerEnemy>(dat.enemySpawnPositions[i]));
         if (allySpawner.position == Vector2Zero() && GetRandomValue(0, 100) < 5) allySpawner.position = dat.enemySpawnPositions[i];
@@ -191,13 +179,14 @@ inline void Game::draw()
         DrawText(TextFormat("%0f", percentLoaded), 400, 400, 30, MAROON);
         break;
     case MAIN:
-        drawMenuBackground("NETHERIUM");
+        drawMenuBackground("NULLZONE");
         if(drawButton({SCREENWIDTH - 120, SCREENHEIGHT - 120, 100, 100}, "START", 20, foregroundColour)) currentScene = LEVELSELECT;
         break;
     case LEVELSELECT: {
             drawMenuBackground("SELECT LEVEL");
-            DrawText("Press ENTER to play random seed", 500, 500, 20, WHITE);
-            int lvl = drawLevelButtons(Rectangle{100, 100, 300, 300}, 10);
+            int width = MeasureText("Press ENTER to play random seed", 20);
+            DrawText("Press ENTER to play random seed", SCREENWIDTH / 2 - width / 2, SCREENHEIGHT - 30, 20, WHITE);
+            int lvl = drawLevelButtons(Rectangle{450, SCREENHEIGHT / 2 - 110, 800, 400}, 10);
             if (IsKeyPressed(KEY_ENTER)) lvl = GetRandomValue(100, 1000);
             if (lvl != -1) {
                 collectibles.clear();
