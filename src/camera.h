@@ -17,16 +17,31 @@ public:
     void setZoom(float value);
     void shake(Vector2 init);
     void shakeExplosion(float dis);
+    void init();
     Rectangle getViewRect();
     ~camera();
 };
 
-camera::camera()
-{
+camera::camera() {
     reqTarget = {0,0};
     cam.offset = Vector2{SCREENWIDTH/2, SCREENHEIGHT/2};
     cam.zoom = 1.0f;
     reqZoom = 1.0f;
+    shakeOffset = { 0 };
+    rotTimer = 0;
+    shakeBias = Vector2Zero();
+    shakeValue = 0;
+}
+
+inline void camera::init() {
+    reqTarget = {0,0};
+    cam.offset = Vector2{SCREENWIDTH/2, SCREENHEIGHT/2};
+    cam.zoom = 1.0f;
+    reqZoom = 1.0f;
+    shakeOffset = { 0 };
+    rotTimer = 0;
+    shakeBias = Vector2Zero();
+    shakeValue = 0;
 }
 
 inline void camera::update(Vector2 pos)

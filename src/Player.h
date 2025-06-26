@@ -11,10 +11,10 @@ typedef struct breadCrumb {
 
 class Player {
 private:
-    int width;
-    int height;
+    int width = 0;
+    int height = 0;
 
-    Vector2 aimDel;
+    Vector2 aimDel = { 0 };
 
     Rectangle collider = Rectangle{0, 0, 40, 40};
     float maxSpeed = 300;
@@ -66,13 +66,13 @@ inline Vector2 Player::getGlobalMousePosition() {
 }
 
 Player::Player() {
-    position = Vector2{100, 40};
 }
 
 Player::~Player() {
 }
 
 inline void Player::init() {
+    cam.init();
     sprite.refresh();
     sprite.scale = 5;
     spriteSize = sprite.getSize();
@@ -97,7 +97,8 @@ inline void Player::update() {
         }
     }
     sprite.update();
-    cam.update(Vector2Add(position, Vector2{width*3/2.0f + aimDel.x, height*3/2.0f + aimDel.y}));
+    Vector2 camTarget = Vector2Add(position, Vector2{width*3/2.0f + aimDel.x, height*3/2.0f + aimDel.y});
+    cam.update(camTarget);
     updateHUD();
 }
 

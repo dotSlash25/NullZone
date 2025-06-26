@@ -85,6 +85,13 @@ inline void Game::loadLevel(int level) {
     player = Player();
     player.init();
     player.position = dat.playerPosition;
+    printf("Loading Player at %.2f %.2f\n", dat.playerPosition.x, dat.playerPosition.y);
+    // player.cam.cam.target = dat.playerPosition;
+    // player.cam.update(dat.playerPosition);
+    player.cam.cam.target = dat.playerPosition;
+    player.cam.cam.offset = { SCREENWIDTH/2.0f, SCREENHEIGHT/2.0f };
+    player.cam.cam.zoom   = 1.0f;
+    drawRect = player.cam.getViewRect();
     ally = Ally(player.position, SMG);
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(1, 6)));
@@ -128,8 +135,6 @@ inline void Game::update()
     case LEVELSELECT:
         break;
     case GAME:
-        if (IsKeyPressed(KEY_ENTER)) loadLevel(GetRandomValue(0, 100));
-        drawRect = player.cam.getViewRect();
         if (player.dead) {
             gameOver = true;
             ShowCursor();
@@ -159,6 +164,7 @@ inline void Game::update()
         }
         explosives.update();
         overworldParticles.update();
+        drawRect = player.cam.getViewRect();
         break;
     case LEVELMAKER:
         lvlMaker.update();
