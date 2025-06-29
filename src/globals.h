@@ -104,12 +104,12 @@ const std::string gunNames[] = {
 };
 
 const gunData GunData[] = {
-    {7, 49, 9, 0.1f, 1, false, 3*DEG2RAD, 4, 1, 0, 0.8f, 350},
-    {30, 150, 3, 0.1f, 1, true, 8*DEG2RAD, 2, 1, 0, 1.25f, 300},
-    {25, 175, 6, 0.18f, 1, true, 3*DEG2RAD, 3, 1, 0, 1, 400},
-    {5, 25, 18, 0.5f, 1, false, 8*DEG2RAD, 6, 3, 5*DEG2RAD, 1.4f, 200},
-    {5, 15, 20, 0.8f, 1, false, 1*DEG2RAD, 8, 1, 0, 0.6f, 600},
-    {1, 10, 25, 1, 1, false, 4*DEG2RAD, 7, 1, 0, 0.75f, 500}
+    {7, 49, 11, 0.1f, 0.75f, false, 3*DEG2RAD, 4, 1, 0, 0.8f, 350},
+    {30, 150, 6, 0.1f, 1.25f, true, 8*DEG2RAD, 2, 1, 0, 1.25f, 300},
+    {25, 175, 9, 0.18f, 0.85f, true, 3*DEG2RAD, 3, 1, 0, 1, 400},
+    {5, 25, 18, 0.5f, 1.5f, false, 8*DEG2RAD, 6, 3, 5*DEG2RAD, 1.4f, 200},
+    {5, 15, 20, 0.8f, 1.75f, false, 1*DEG2RAD, 8, 1, 0, 0.6f, 600},
+    {1, 10, 25, 1, 2.0f, false, 4*DEG2RAD, 7, 1, 0, 0.75f, 500}
 };
 
 void drawBar(Rectangle rect, float ratio) {

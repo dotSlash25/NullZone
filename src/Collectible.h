@@ -1,6 +1,6 @@
 #pragma once
 
-enum CollectibleType {GUN, AMMO, MEDIKIT, COIN};
+enum CollectibleType {GUN, AMMO, MEDIKIT, CHARGE};
 
 class Collectible
 {
@@ -16,7 +16,6 @@ public:
     gunType gType = PISTOL;
     int ammoCount = 0;
     float healAmount = 0;
-    int coinValue = 0;
 
     float drawScale = 3;
 
@@ -64,7 +63,6 @@ inline void Collectible::loadData(CollectibleType t, int k)
         spriteRect = {0, 0, 16, 16};
         break;
     default:
-        coinValue = k;
         spriteID = 4;
         spriteRect = {32, 0, 16, 16};
         break;
@@ -104,6 +102,10 @@ inline void Collectible::draw()
             case MEDIKIT:
                 player.health += healAmount;
                 if (player.health > 100) player.health = 100;
+                break;
+            case CHARGE:
+                player.charges++;
+                break;
             default:
                 break;
             }

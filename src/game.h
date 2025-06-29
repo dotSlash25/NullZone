@@ -86,13 +86,11 @@ inline void Game::loadLevel(int level) {
     player.init();
     player.position = dat.playerPosition;
     printf("Loading Player at %.2f %.2f\n", dat.playerPosition.x, dat.playerPosition.y);
-    // player.cam.cam.target = dat.playerPosition;
-    // player.cam.update(dat.playerPosition);
     player.cam.cam.target = dat.playerPosition;
     player.cam.cam.offset = { SCREENWIDTH/2.0f, SCREENHEIGHT/2.0f };
     player.cam.cam.zoom   = 1.0f;
     drawRect = player.cam.getViewRect();
-    ally = Ally(player.position, SMG);
+    ally = Ally(player.position, (gunType)GetRandomValue(1, 5));
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(1, 6)));
         else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
@@ -145,6 +143,11 @@ inline void Game::update()
         for (auto &&enemy : enemies) {
             enemy->update();
         }
+        gameWon = enemies.size() == 0;
+        if (gameWon) {
+            gameOver = true;
+            ShowCursor();
+        }
         for (auto it = enemies.begin(); it != enemies.end();) {
             if (!(*it)->active) {
                 it = enemies.erase(it);
@@ -180,9 +183,9 @@ inline void Game::draw()
     switch (currentScene) {
     case LOADING:
         percentLoaded = static_cast<float>(spriteManager.unitLoaded)*50 + static_cast<float>(soundManager.unitLoaded)*50;
-        DrawRectangle(0, 0, percentLoaded*SCREENWIDTH, SCREENHEIGHT, Fade(BLACK, 0.3));
+        DrawRectangle(0, 0, percentLoaded*SCREENWIDTH/100, SCREENHEIGHT, Fade(foregroundColour, 0.1));
         drawMenuBackground("LOADING");
-        DrawText(TextFormat("%0f", percentLoaded), 400, 400, 30, MAROON);
+        DrawText(TextFormat("%.0f", percentLoaded), SCREENWIDTH/2 - MeasureText(TextFormat("%.0f", percentLoaded), 30)/2, SCREENHEIGHT/2 - 15, 30, foregroundColour);
         break;
     case MAIN:
         drawMenuBackground("NULLZONE");
@@ -199,6 +202,7 @@ inline void Game::draw()
                 enemies.clear();
                 loadLevel(lvl);
                 gameOver = false;
+                gameWon = false;
                 currentScene = GAME;
                 HideCursor();
             }
@@ -304,8 +308,13 @@ void drawMinimap() {
 
 void drawGameOverScreen() {
     DrawRectangle(0, 0, SCREENWIDTH, SCREENHEIGHT, Fade(BLACK, 0.7));
-    DrawText("GAME OVER", SCREENWIDTH/2 - MeasureText("GAME OVER", 60)/2, SCREENHEIGHT/2 - 70, 60, foregroundColour);
-    DrawText("Press E to retry", SCREENWIDTH/2 - MeasureText("Press E to retry", 30)/2, SCREENHEIGHT/2, 30, WHITE);
+    if (gameWon) {
+        DrawText("LEVEL CLEARED", SCREENWIDTH/2 - MeasureText("LEVEL CLEARED", 60)/2, SCREENHEIGHT/2 - 70, 60, foregroundColour);
+        DrawText("Press E to return", SCREENWIDTH/2 - MeasureText("Press E to return", 30)/2, SCREENHEIGHT/2, 30, WHITE);
+    } else {
+        DrawText("GAME OVER", SCREENWIDTH/2 - MeasureText("GAME OVER", 60)/2, SCREENHEIGHT/2 - 70, 60, foregroundColour);
+        DrawText("Press E to retry", SCREENWIDTH/2 - MeasureText("Press E to retry", 30)/2, SCREENHEIGHT/2, 30, WHITE);
+    }
     if (IsKeyPressed(KEY_E)) {
         currentScene = LEVELSELECT;
     }

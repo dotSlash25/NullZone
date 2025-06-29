@@ -29,6 +29,7 @@ private:
     HUD hud;
     
     float explosivePrimeTimer = 0;
+    bool explosivePrimed = false;
     
     Vector2 spriteSize;
     
@@ -37,7 +38,7 @@ private:
     void updateGun();
     void handleInput();
     void handleMovement();
-    public:
+public:
     Player();
     ~Player();
     Vector2 position;
@@ -46,6 +47,7 @@ private:
     camera cam = camera();
     Gun gun = Gun(PISTOL);
     
+    int charges = 3;
     float health = 100;
     bool dead = false;
     
@@ -66,6 +68,7 @@ inline Vector2 Player::getGlobalMousePosition() {
 }
 
 Player::Player() {
+    charges = 3;
 }
 
 Player::~Player() {
@@ -118,14 +121,14 @@ inline void Player::draw() {
 }
 
 inline void Player::updateHUD() {
-    hud.update(gun.type, health/100.0f, gun.bulletsIn, gun.clips);
+    hud.update(gun.type, health/100.0f, gun.bulletsIn, gun.clips, charges);
 }
 
 inline void Player::fire() {
     if (gun.fire(false)) {
         Vector2 del = Vector2{cos(gun.rotation), sin(gun.rotation)};
         del = Vector2Scale(del, gun.kickback*15);
-        cam.shake(del);
+        cam.shake(del*3);
         knockback = Vector2Normalize(Vector2Subtract(position, getGlobalMousePosition()));
         knockback = Vector2Scale(knockback, gun.kickback*50);
     }
@@ -187,9 +190,10 @@ inline void Player::handleInput() {
     } else if (IsKeyDown(KEY_S)) {
         velocity.y = 1;
     }
-    if (IsKeyPressed(KEY_SPACE) && dashing == 0) {
+    if (IsKeyPressed(KEY_SPACE) && dashing == 0 && charges > 0) {
         dashVelocity = Vector2Scale(Vector2Normalize(velocity), 10.0f*maxSpeed);
         dashing = true;
+        charges--;
     }
     if(IsKeyPressed(KEY_G)) {
         throwGun(position, gun.type);
@@ -199,11 +203,14 @@ inline void Player::handleInput() {
         gun.reload();
     }
 
-    if (IsMouseButtonDown(1)) {
+    if (IsMouseButtonDown(1) && charges > 0) {
         explosivePrimeTimer += delta;
-    } else if (IsMouseButtonReleased(1)) {
+        explosivePrimed = true;
+    } else if (IsMouseButtonReleased(1) && explosivePrimed) {
         explosives.addExplosive(position, Vector2Scale(Vector2Normalize(Vector2Subtract(getGlobalMousePosition(), position)), 1400.0f*explosivePrimeTimer + 100), 3 - explosivePrimeTimer);
         explosivePrimeTimer = 0;
+        charges--;
+        explosivePrimed = false;
     }
 }
 

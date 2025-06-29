@@ -20,7 +20,7 @@ class Ally {
         bool dirtyPatrolPoint = true;
         float patrolWaitTime = 0;
         float reactionTime = GetRandomValue(0, 100) * 0.5f * 0.01f + 0.2f;
-        float range = GetRandomValue(200, 400);
+        float range = 0;
         float timeSinceInSight = 0;
     
         Vector2 wallRepulsion = { 0 };
@@ -59,7 +59,7 @@ class Ally {
         
         Ally(Vector2 pos, gunType gType) {
             position = pos;
-            speed = 200;
+            speed = 300;
             gun = Gun(gType);
             sprite.refresh();
             sprite.scale = 5;
@@ -68,6 +68,7 @@ class Ally {
             health = 40;
             size = {40, 80}; 
             gun.update({position.x + GetRandomValue(-100, 100), position.y + GetRandomValue(-100, 100)}, position);
+            range = GunData[gType - 1].range;
         }
     
         void update() {
@@ -83,7 +84,7 @@ class Ally {
             if (targetEnemy == NULL || targetEnemy->dead) {
                 for (auto &&enemy : enemies) {
                     if (enemy->dead) continue;
-                    if (Vector2DistanceSqr(position, enemy->position) < 64000) {
+                    if (Vector2DistanceSqr(position, enemy->position) < range*range) {
                         if (MapLoader.rayCast(position, enemy->position)) {
                             targetEnemy = enemy.get();
                             break;

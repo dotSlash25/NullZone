@@ -1,15 +1,15 @@
 void drawMenuBackground(std::string menuName) {
     ClearBackground(backgroundColour);
-    DrawTextPro(GetFontDefault(), menuName.c_str(), {20, SCREENHEIGHT - 20}, {0,0}, -90, 80, 1.5, foregroundColour2);
+    DrawTextPro(GetFontDefault(), menuName.c_str(), {20, SCREENHEIGHT - 20}, {0,0}, -90, 80, 10, foregroundColour2);
 }
 
 bool drawButton(Rectangle rect, std::string text, int textSize, Color colour) {
-    DrawRectangleLinesEx(rect, 1, WHITE);
-    DrawRectangleRec(rect, Fade(WHITE, 0.2));
+    DrawRectangleLinesEx(rect, 1, colour);
+    DrawRectangleRec(rect, Fade(colour, 0.2));
     float textDrawX = rect.x + rect.width/2 - MeasureText(text.c_str(), textSize)/2;
     float textDrawY = rect.y + rect.height/2 - textSize/2;
-    DrawText(text.c_str(), textDrawX, textDrawY, textSize, WHITE);
-    return CheckCollisionPointRec(GetMousePosition(), rect) and IsMouseButtonDown(0);
+    DrawText(text.c_str(), textDrawX, textDrawY, textSize, colour);
+    return CheckCollisionPointRec(GetMousePosition(), rect) and IsMouseButtonReleased(0);
 }
 
 int drawLevelButtons(Rectangle rect, int numButtons) {

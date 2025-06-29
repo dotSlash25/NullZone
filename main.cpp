@@ -15,7 +15,7 @@ int main() {
     if (!soundEnabled) SetMasterVolume(0);
     else SetMasterVolume(100);
     game.init();
-    //SetTargetFPS(GetMonitorRefreshRate(0));
+    SetTargetFPS(144);
     while(!WindowShouldClose()) {
         game.update();
         
