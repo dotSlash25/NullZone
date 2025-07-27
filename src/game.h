@@ -7,6 +7,7 @@ void applyAreaDamage(Vector2 position, float damage, float radius);
 void slowMo(float time, float factor);
 void drawMinimap();
 void drawGameOverScreen();
+void toggleFullscreen();
 
 Shader flashShader;
 Shader vignetteShader;
@@ -57,6 +58,8 @@ float percentLoaded = 0.0f;
 bool gameWon = false;
 bool gameOver = false;
 
+int resolutionLocation = 0;
+
 RenderTexture2D minimap;
 
 class Game {
@@ -77,6 +80,7 @@ inline void Game::init() {
     soundManager.loadSounds();
     flashShader = LoadShader(0, "shaders/flash.glsl");
     vignetteShader = LoadShader(0, "shaders/vignette.glsl");
+    resolutionLocation = GetShaderLocation(vignetteShader, "resolution");
 }
 
 inline void Game::loadLevel(int level) {
@@ -106,6 +110,7 @@ inline void Game::loadLevel(int level) {
 
 inline void Game::update()
 {
+    if (IsKeyPressed(KEY_F11)) toggleFullscreen();
     float reqDelta = 0;
     if (slowMoTimer > 0) {
         reqDelta = slowMoFactor * GetFrameTime();
@@ -317,5 +322,23 @@ void drawGameOverScreen() {
     }
     if (IsKeyPressed(KEY_E)) {
         currentScene = LEVELSELECT;
+    }
+}
+
+inline void toggleFullscreen() {
+    if (IsWindowFullscreen()) {
+        SCREENWIDTH = 1200;
+        SCREENHEIGHT = 800;
+        ToggleFullscreen();
+        SetWindowSize(SCREENWIDTH, SCREENHEIGHT);
+        Vector2 res = {SCREENWIDTH, SCREENHEIGHT};
+        SetShaderValue(vignetteShader, resolutionLocation, &res, SHADER_UNIFORM_VEC2);
+    } else {
+        SCREENWIDTH = GetMonitorWidth(0);
+        SCREENHEIGHT = GetMonitorHeight(0);
+        SetWindowSize(SCREENWIDTH, SCREENHEIGHT);
+        ToggleFullscreen();
+        Vector2 res = {SCREENWIDTH, SCREENHEIGHT};
+        SetShaderValue(vignetteShader, resolutionLocation, &res, SHADER_UNIFORM_VEC2);
     }
 }

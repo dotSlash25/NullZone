@@ -3,7 +3,7 @@
 in vec2 fragTexCoord;
 out vec4 finalColour;
 
-vec2 resolution = vec2(1200.0, 900.0);
+uniform vec2 resolution = vec2(1200.0, 900.0);
 float strength = 0.9;
 
 void main() {

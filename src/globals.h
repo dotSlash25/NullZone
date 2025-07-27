@@ -3,8 +3,8 @@
 const bool DEBUG = false;
 const bool soundEnabled = true;
 
-const int SCREENWIDTH = 1200;
-const int SCREENHEIGHT = 900;
+int SCREENWIDTH = 1200;
+int SCREENHEIGHT = 900;
 
 const int tileDrawSize = 96;
 
