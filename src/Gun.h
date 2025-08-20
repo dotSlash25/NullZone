@@ -9,33 +9,32 @@ extern std::vector<Bullet> bullets;
 class Gun {
 private:
     float firerate = 0;
-    float reloadTime = 0;
-
+    
     float damage = 0;
-
+    
     float inaccuracy = 0;
     int spreadNumber = 1;
     float spreadAngle = 15*DEG2RAD;
     int burstNumber = 1;
     float burstDelay = 0;
-
+    
     float knockbackAngle = 0;
     Vector2 offset = {0, 0};
-
-
+    
+    
     void loadData(gunType t);
-
+    
     float lastFired = 0;
-
-
+    
+    
     void shoot(bool isEnemy);
-
+    
     int spriteFlip = 1;
     bool justShot = false;
-
+    
     
     Particles shootParticles = Particles();
-public:
+    public:
     Gun(gunType GunType);
     Gun();
     gunType type;
@@ -48,15 +47,16 @@ public:
     int numbullets;
     int bulletsIn;
     int clips;
-
+    
     bool automatic = false;
     float kickback = 2;
     float rotation = 0;
     float range = 40;
     float scope = 1.0f;
-
+    
     bool reloading = false;
     float reloadingTime = 0;
+    float reloadTime = 0;
 
     bool fire(bool isEnemy);
     void update(Vector2 aim, Vector2 pos);

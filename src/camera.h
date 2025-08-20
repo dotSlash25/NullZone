@@ -47,7 +47,7 @@ inline void camera::init() {
 inline void camera::update(Vector2 pos)
 {
     cam.zoom = lerp(cam.zoom, reqZoom, 2);
-    cam.target = lerp(cam.target, pos, 25);
+    cam.target = pos;//lerp(cam.target, pos, 25);
     cam.target = Vector2Add(cam.target, shakeOffset);
     shakeValue = lerp(shakeValue, 0, 5);
 

@@ -81,6 +81,7 @@ inline void Game::init() {
     flashShader = LoadShader(0, "shaders/flash.glsl");
     vignetteShader = LoadShader(0, "shaders/vignette.glsl");
     resolutionLocation = GetShaderLocation(vignetteShader, "resolution");
+    //toggleFullscreen();
 }
 
 inline void Game::loadLevel(int level) {
@@ -93,14 +94,16 @@ inline void Game::loadLevel(int level) {
     player.cam.cam.target = dat.playerPosition;
     player.cam.cam.offset = { SCREENWIDTH/2.0f, SCREENHEIGHT/2.0f };
     player.cam.cam.zoom   = 1.0f;
-    drawRect = player.cam.getViewRect();
+    drawRect = {0, 0, 0, 0};
     ally = Ally(player.position, (gunType)GetRandomValue(1, 5));
+    printf("Placing enemies\n");
     for (int i = 0; i < dat.numEnemySpawnPositions; i++) {
         if (dat.enemyTypes[i] == 1) enemies.push_back(std::make_unique<ShooterEnemy>(dat.enemySpawnPositions[i], (gunType)GetRandomValue(1, 6)));
         else if (dat.enemyTypes[i] == 2) enemies.push_back(std::make_unique<BoomEnemy>(dat.enemySpawnPositions[i]));
         else enemies.push_back(std::make_unique<WalkerEnemy>(dat.enemySpawnPositions[i]));
         if (allySpawner.position == Vector2Zero() && GetRandomValue(0, 100) < 5) allySpawner.position = dat.enemySpawnPositions[i];
     }
+    printf("Placing Collectibles\n");
     for (int i = 0; i < dat.numCollectibleSpawnPositions; i++) {
         collectibles.push_back(Collectible((CollectibleType)dat.collectibleTypes[i], (int)dat.collectibleData[i], dat.collectiblePositions[i]));
     }
@@ -300,15 +303,15 @@ void slowMo(float time, float factor) {
 }
 
 void drawMinimap() {
-    DrawRectangleLines(10, 30, 100, 100, WHITE);
+    DrawRectangleLines(10, SCREENHEIGHT - 110, 100, 100, WHITE);
     float startX = std::max({0.0f, player.position.x / tileDrawSize - 8});
     float startY = std::max({0.0f, player.position.y / tileDrawSize - 8});
     float endX = std::min({100.0f, player.position.x / tileDrawSize + 8});
     float endY = std::min({100.0f, player.position.y / tileDrawSize + 8});
     Rectangle srcRec = {startX, minimap.texture.height - endY, endX - startX,  - (endY - startY)};
-    Rectangle dstRec = {15, 35, 90, 90};
+    Rectangle dstRec = {15, SCREENHEIGHT - 105, 90, 90};
     DrawTexturePro(minimap.texture, srcRec, dstRec, Vector2Zero(), 0, WHITE);
-    DrawCircle(60, 80, 2, foregroundColour);
+    DrawCircle(60, SCREENHEIGHT - 60, 2, foregroundColour);
 }
 
 void drawGameOverScreen() {

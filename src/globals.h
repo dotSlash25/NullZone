@@ -115,8 +115,8 @@ const gunData GunData[] = {
 void drawBar(Rectangle rect, float ratio) {
     DrawRectangleRec(rect, Fade(WHITE, 0.3));
     DrawRectangleLinesEx(rect, 1, WHITE);
-    float w = ratio * (rect.width - 2);
-    DrawRectangleRec({rect.x + 1, rect.y + 1, w, rect.height - 2}, ratio > 0.25 ? WHITE : RED);
+    float w = ratio * (rect.width - 4);
+    DrawRectangleRec({rect.x + 2, rect.y + 2, w, rect.height - 4}, ratio > 0.25 ? WHITE : RED);
 }
 
 Vector2 lerp(Vector2 value, Vector2 target, float rate) {

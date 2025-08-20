@@ -31,7 +31,7 @@ private:
     float explosivePrimeTimer = 0;
     bool explosivePrimed = false;
     
-    Vector2 spriteSize;
+    Vector2 spriteSize = { 0 };
     
     Vector2 getGlobalMousePosition();
     void updateBreadcrumbs();
@@ -41,9 +41,9 @@ private:
 public:
     Player();
     ~Player();
-    Vector2 position;
-    Vector2 velocity;
-    Vector2 knockback;
+    Vector2 position = { 0 };
+    Vector2 velocity = { 0 };
+    Vector2 knockback = { 0 };
     camera cam = camera();
     Gun gun = Gun(PISTOL);
     
@@ -136,6 +136,9 @@ inline void Player::fire() {
 
 inline void Player::drawHUD() {
     hud.draw();
+    if (gun.reloading) {
+        hud.drawReloadingEffect(gun.reloadingTime / gun.reloadTime);
+    }
 }
 
 inline void Player::updateBreadcrumbs() {
