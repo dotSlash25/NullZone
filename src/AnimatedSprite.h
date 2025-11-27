@@ -1,6 +1,7 @@
 #pragma once
 
 extern SpritesManager spriteManager;
+extern Shader flashShader;
 
 class AnimatedSprite
 {
@@ -27,9 +28,9 @@ private:
     void draw(Vector2 position, Color tint);
     void refresh();
     Vector2 getSize();
-    
+
     void debugText();
-    
+
     bool playingOnce = false;
     bool flipH = false;
     float scale = 1;

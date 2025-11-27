@@ -11,25 +11,27 @@ void toggleFullscreen();
 
 Shader flashShader;
 Shader vignetteShader;
+Shader brightFilter;
+Shader blurShader;
 
-#include "src/camera.h"
-#include "src/SpritesManager.h"
-#include "src/Particles.h"
-#include "src/SoundsManager.h"
-#include "src/AnimatedSprite.h"
-#include "src/mapLoader.h"
-#include "src/Explosives.h"
-#include "src/Gun.h"
-#include "src/HUD.h"
-#include "src/Player.h"
-#include "src/Enemy.h"
+#include "camera.h"
+#include "SpritesManager.h"
+#include "Particles.h"
+#include "SoundsManager.h"
+#include "AnimatedSprite.h"
+#include "mapLoader.h"
+#include "Explosives.h"
+#include "Gun.h"
+#include "HUD.h"
+#include "Player.h"
+#include "Enemy.h"
 
 std::vector<std::unique_ptr<Enemy>> enemies;
 
-#include "src/Ally.h"
-#include "src/Collectible.h"
-#include "src/Menu.h"
-#include "src/LevelMaker.h"
+#include "Ally.h"
+#include "Collectible.h"
+#include "Menu.h"
+#include "LevelMaker.h"
 
 SpritesManager spriteManager;
 SoundsManager soundManager;
@@ -59,12 +61,21 @@ bool gameWon = false;
 bool gameOver = false;
 
 int resolutionLocation = 0;
+int blurResolutionLocation = 0;
+int blurLocation = 0;
+
+float blurAmount = 0;
 
 RenderTexture2D minimap;
+RenderTexture2D mainDrawPass;
+RenderTexture2D brightDraws;
+RenderTexture2D blurredBrights;
+
+float val = 4;
 
 class Game {
 public:
-    
+
     void init();
     void loadLevel(int level);
     void update();
@@ -80,8 +91,20 @@ inline void Game::init() {
     soundManager.loadSounds();
     flashShader = LoadShader(0, "shaders/flash.glsl");
     vignetteShader = LoadShader(0, "shaders/vignette.glsl");
+    blurShader = LoadShader(0, "shaders/blur.glsl");
+    brightFilter = LoadShader(0, "shaders/brightExtractor.glsl");
+    blurLocation = GetShaderLocation(blurShader, "strength");
+    int resLoc = GetShaderLocation(blurShader, "resolution");
+    Vector2 res = { (float)SCREENWIDTH, (float)SCREENHEIGHT };
+    SetShaderValue(blurShader, resLoc, &res, SHADER_UNIFORM_VEC2);
+    res = { (float)SCREENWIDTH, (float)SCREENHEIGHT };
     resolutionLocation = GetShaderLocation(vignetteShader, "resolution");
+    blurResolutionLocation = GetShaderLocation(blurShader, "resolution");
     //toggleFullscreen();
+    mainDrawPass = LoadRenderTexture(SCREENWIDTH, SCREENHEIGHT);
+    brightDraws = LoadRenderTexture(SCREENWIDTH, SCREENHEIGHT);
+    blurredBrights = LoadRenderTexture(SCREENWIDTH, SCREENHEIGHT);
+    SetTextureFilter(blurredBrights.texture, TEXTURE_FILTER_ANISOTROPIC_4X);
 }
 
 inline void Game::loadLevel(int level) {
@@ -146,6 +169,7 @@ inline void Game::update()
             ShowCursor();
         }
         player.update();
+        blurAmount = Clamp(player.cam.getTrauma() * 5 + player.visionBlur, 0, 4.0);
         allySpawner.update();
         ally.update();
         for (auto &&enemy : enemies) {
@@ -197,13 +221,13 @@ inline void Game::draw()
         break;
     case MAIN:
         drawMenuBackground("NULLZONE");
-        if(drawButton({SCREENWIDTH - 120, SCREENHEIGHT - 120, 100, 100}, "START", 20, foregroundColour)) currentScene = LEVELSELECT;
+        if(drawButton({SCREENWIDTH - 120.0f, SCREENHEIGHT - 120.0f, 100, 100}, "START", 20, foregroundColour)) currentScene = LEVELSELECT;
         break;
     case LEVELSELECT: {
             drawMenuBackground("SELECT LEVEL");
             int width = MeasureText("Press ENTER to play random seed", 20);
             DrawText("Press ENTER to play random seed", SCREENWIDTH / 2 - width / 2, SCREENHEIGHT - 30, 20, WHITE);
-            int lvl = drawLevelButtons(Rectangle{450, SCREENHEIGHT / 2 - 110, 800, 400}, 10);
+            int lvl = drawLevelButtons(Rectangle{450, SCREENHEIGHT / 2.0f - 110.0f, 800, 400}, 10);
             if (IsKeyPressed(KEY_ENTER)) lvl = GetRandomValue(100, 1000);
             if (lvl != -1) {
                 collectibles.clear();
@@ -217,6 +241,7 @@ inline void Game::draw()
             break;
         }
     case GAME:
+        BeginTextureMode(mainDrawPass);
         BeginMode2D(player.cam.cam);
         MapLoader.draw(drawRect);
         for (auto &&bullet : bullets)
@@ -233,9 +258,9 @@ inline void Game::draw()
         explosives.draw();
         collectibles.erase(
             std::remove_if(collectibles.begin(), collectibles.end(), [](auto& collectible) {
-                    if (!collectible.active) return true; 
+                    if (!collectible.active) return true;
                     collectible.draw();
-                    return false;   
+                    return false;
                 }),
                 collectibles.end()
         );
@@ -244,6 +269,27 @@ inline void Game::draw()
         for (auto &&collectible : collectibles) {
             collectible.drawHUD();
         }
+        EndTextureMode();
+        BeginTextureMode(brightDraws);
+        ClearBackground(BLANK);
+        BeginShaderMode(brightFilter);
+        DrawTexturePro(mainDrawPass.texture, {0, 0, SCREENWIDTH, SCREENHEIGHT}, {0, 0, (float)SCREENWIDTH, (float)SCREENHEIGHT}, {0, 0}, 0, WHITE);
+        EndShaderMode();
+        EndTextureMode();
+        SetShaderValue(blurShader, blurLocation, &val, SHADER_UNIFORM_FLOAT);
+        BeginTextureMode(blurredBrights);
+        ClearBackground(BLANK);
+        BeginShaderMode(blurShader);
+        DrawTexturePro(brightDraws.texture, {0, 0, SCREENWIDTH, SCREENHEIGHT}, {0, 0, (float)SCREENWIDTH, (float)SCREENHEIGHT}, {0, 0}, 0, WHITE);
+        EndShaderMode();
+        EndTextureMode();
+        SetShaderValue(blurShader, blurLocation, &blurAmount, SHADER_UNIFORM_FLOAT);
+        BeginShaderMode(blurShader);
+        DrawTexturePro(mainDrawPass.texture, {0, 0, SCREENWIDTH, -SCREENHEIGHT}, {0, 0, (float)SCREENWIDTH, (float)SCREENHEIGHT}, {0, 0}, 0, WHITE);
+        EndShaderMode();
+        BeginBlendMode(BLEND_ADDITIVE);
+        DrawTexturePro(blurredBrights.texture, {0, 0, blurredBrights.texture.width, -blurredBrights.texture.height}, {0, 0, (float)SCREENWIDTH, (float)SCREENHEIGHT}, {0, 0}, 0, Fade(WHITE, 0.9));
+        EndBlendMode();
         drawMinimap();
         player.drawHUD();
         DrawFPS(10, 10);
@@ -264,10 +310,15 @@ inline void Game::unload()
 {
     ShowCursor();
     if (IsRenderTextureValid(minimap)) UnloadRenderTexture(minimap);
+    UnloadRenderTexture(mainDrawPass);
+    UnloadRenderTexture(brightDraws);
+    UnloadRenderTexture(blurredBrights);
     spriteManager.unload();
     soundManager.unload();
     UnloadShader(flashShader);
     UnloadShader(vignetteShader);
+    UnloadShader(blurShader);
+    UnloadShader(brightFilter);
 }
 
 void throwGun(Vector2 position, gunType type) {
@@ -293,6 +344,10 @@ void applyAreaDamage(Vector2 position, float damage, float radius) {
     }
     if (Vector2DistanceSqr(player.position, position) < 25*radius*radius) {
         player.cam.shakeExplosion(Vector2Distance(player.position, position));
+        float distance = Vector2DistanceSqr(player.position, position);
+        distance = Clamp(distance / 22500, 0, 0.8);
+        SetSoundVolume(soundManager.getSound(6), 1 - distance);
+        soundManager.playSoundWithVarPitch(6);
     }
     MapLoader.tileExplosion(position);
 }
@@ -304,12 +359,12 @@ void slowMo(float time, float factor) {
 
 void drawMinimap() {
     DrawRectangleLines(10, SCREENHEIGHT - 110, 100, 100, WHITE);
-    float startX = std::max({0.0f, player.position.x / tileDrawSize - 8});
-    float startY = std::max({0.0f, player.position.y / tileDrawSize - 8});
-    float endX = std::min({100.0f, player.position.x / tileDrawSize + 8});
-    float endY = std::min({100.0f, player.position.y / tileDrawSize + 8});
+    float startX = std::max(0.0f, player.position.x / tileDrawSize - 8);
+    float startY = std::max(0.0f, player.position.y / tileDrawSize - 8);
+    float endX = std::min(100.0f, player.position.x / tileDrawSize + 8);
+    float endY = std::min(100.0f, player.position.y / tileDrawSize + 8);
     Rectangle srcRec = {startX, minimap.texture.height - endY, endX - startX,  - (endY - startY)};
-    Rectangle dstRec = {15, SCREENHEIGHT - 105, 90, 90};
+    Rectangle dstRec = {15, SCREENHEIGHT - 105.0f, 90, 90};
     DrawTexturePro(minimap.texture, srcRec, dstRec, Vector2Zero(), 0, WHITE);
     DrawCircle(60, SCREENHEIGHT - 60, 2, foregroundColour);
 }
@@ -336,6 +391,7 @@ inline void toggleFullscreen() {
         SetWindowSize(SCREENWIDTH, SCREENHEIGHT);
         Vector2 res = {SCREENWIDTH, SCREENHEIGHT};
         SetShaderValue(vignetteShader, resolutionLocation, &res, SHADER_UNIFORM_VEC2);
+        SetShaderValue(blurShader, blurResolutionLocation, &res, SHADER_UNIFORM_VEC2);
     } else {
         SCREENWIDTH = GetMonitorWidth(0);
         SCREENHEIGHT = GetMonitorHeight(0);
@@ -343,5 +399,6 @@ inline void toggleFullscreen() {
         ToggleFullscreen();
         Vector2 res = {SCREENWIDTH, SCREENHEIGHT};
         SetShaderValue(vignetteShader, resolutionLocation, &res, SHADER_UNIFORM_VEC2);
+        SetShaderValue(blurShader, blurResolutionLocation, &res, SHADER_UNIFORM_VEC2);
     }
 }

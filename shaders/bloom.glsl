@@ -1,40 +1,33 @@
 #version 330
 
-// Input vertex attributes (from vertex shader)
 in vec2 fragTexCoord;
 in vec4 fragColor;
 
-// Input uniform values
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
+uniform vec2 resolution;   // pass window or rendertexture size
+uniform float threshold;   // e.g. 0.5
+uniform float intensity;   // e.g. 0.8
 
-// Output fragment color
 out vec4 finalColor;
 
-// NOTE: Add here your custom variables
+float brightness(vec3 c) {
+    return dot(c, vec3(0.299, 0.587, 0.114)); // luminance formula
+}
 
-const vec2 size = vec2(800, 450);   // Framebuffer size
-const float samples = 11.0;          // Pixels per axis; higher = bigger glow, worse performance
-const float quality = 2.5;          // Defines size factor: Lower = smaller glow, better quality
+void main() {
+    vec2 texel = 1.0 / resolution;
+    vec3 col = texture(texture0, fragTexCoord).rgb;
 
-void main()
-{
-    vec4 sum = vec4(0);
-    vec2 sizeFactor = vec2(1)/size*quality;
+    // Simple 9-sample blur kernel
+    vec3 bloom = vec3(0.0);
+    float kernel[9] = float[](0.05, 0.09, 0.12, 0.15, 0.18, 0.15, 0.12, 0.09, 0.05);
 
-    // Texel color fetching from texture sampler
-    vec4 source = texture(texture0, fragTexCoord);
-
-    int range = 5;            // should be = (samples - 1)/2;
-
-    for (int x = -range; x <= range; x++)
-    {
-        for (int y = -range; y <= range; y++)
-        {
-            sum += texture(texture0, fragTexCoord + vec2(x, y)*sizeFactor);
-        }
+    for (int i = -4; i <= 4; i++) {
+        bloom += texture(texture0, fragTexCoord + vec2(texel.x * i, 0.0)).rgb * kernel[i+4];
+        bloom += texture(texture0, fragTexCoord + vec2(0.0, texel.y * i)).rgb * kernel[i+4];
     }
 
-    // Calculate final fragment color
-    finalColor = ((sum/(samples*samples)) + source)*colDiffuse;
+    vec3 result = col + bloom * intensity;
+    finalColor = vec4(result, 1.0) * colDiffuse * fragColor;
 }

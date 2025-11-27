@@ -11,6 +11,7 @@ struct Explosive {
     int frame;
     float scale;
     int rotation;
+    float damage;
     bool damageApplied;
 };
 
@@ -43,7 +44,7 @@ public:
         }
     }
 
-    void addExplosive(Vector2 position, Vector2 velocity, float _detonationTime) {
+    void addExplosive(Vector2 position, Vector2 velocity, float damage, float _detonationTime) {
         for (int i = 0; i < MAX_EXPLOSIVES; i++) {
             if (!explosivesArr[i].active) {
                 explosivesArr[i].position = position;
@@ -52,6 +53,7 @@ public:
                 explosivesArr[i].active = true;
                 explosivesArr[i].frame = 0;
                 explosivesArr[i].timePassed = 0;
+                explosivesArr[i].damage = damage;
                 break;
             }
         }
@@ -74,7 +76,7 @@ public:
                 explosivesArr[i].timeAfterDetonation += delta;
                 explosivesArr[i].frame = (int)(explosivesArr[i].timeAfterDetonation / 0.015);
                 if (explosivesArr[i].frame == 3 && !explosivesArr[i].damageApplied) {
-                    applyAreaDamage(explosivesArr[i].position, 100, 20*explosivesArr[i].scale);
+                    applyAreaDamage(explosivesArr[i].position, explosivesArr[i].damage, 20*explosivesArr[i].scale);
                     explosivesArr[i].damageApplied = true;
                 }
                 if (explosivesArr[i].frame >= 12) {
@@ -94,7 +96,7 @@ public:
                 int sheight = 32;
                 Rectangle sourceRec = { (float)explosivesArr[i].frame*swidth, 0, (float)swidth, (float)sheight};
                 Rectangle dstRec = { explosivesArr[i].position.x, explosivesArr[i].position.y, swidth*explosivesArr[i].scale, sheight*explosivesArr[i].scale};
-                DrawCircleV(explosivesArr[i].position, explosivesArr[i].scale*20, Fade(BLACK, 0.2));
+                DrawCircleV(explosivesArr[i].position, explosivesArr[i].scale*20, Fade(BLACK, 0.1));
                 DrawTexturePro(spriteManager.sprite(12), sourceRec, dstRec, {swidth / 2 * explosivesArr[i].scale, sheight / 2 * explosivesArr[i].scale}, explosivesArr[i].rotation, WHITE);
             } else {
                 int swidth = 6;

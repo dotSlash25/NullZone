@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Tilemap.h"
 
 //todo: add map info like steps per turn etc
@@ -54,12 +53,12 @@ mapLoader::~mapLoader()
 }
 
 inline mapData mapLoader::loadMap(int level)
-{    
+{
     std::string fileName = "levels/lvl_" + std::to_string(level) + ".png";
     Image img = LoadImage(fileName.c_str());
 
     mapData data = { 0 };
-    
+
     for (int i = 0; i < img.height; i++)
     {
         for (int j = 0; j < img.width; j++)
@@ -85,7 +84,7 @@ inline mapData mapLoader::loadMap(int level)
                 data.playerPosition = Vector2{j*1.0f*tileDrawSize + tileDrawSize/2, i*1.0f*tileDrawSize + tileDrawSize/2};
             }
         }
-        
+
     }
     UnloadImage(img);
     return data;
@@ -108,16 +107,16 @@ inline Rectangle mapLoader::checkCollisions(Rectangle rec, Vector2 velo)
         {
             if (tiles.getTile(Vector2{(float)i, (float)j}) <= 3)
             {
-                Rectangle tile = Rectangle{i*tileDrawSize, j*tileDrawSize, tileDrawSize, tileDrawSize};
+                Rectangle tile = Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize};
                 if (CheckCollisionRecs(rec, tile))
                 {
                     if(velo.x > 0) rec.x = tile.x - rec.width;
                     else rec.x = tile.x + tile.width;
-                }                
+                }
             }
-            
+
         }
-        
+
     }
     rec.y += velo.y;
     for (int i = x-1; i < x+2; i++)
@@ -126,16 +125,16 @@ inline Rectangle mapLoader::checkCollisions(Rectangle rec, Vector2 velo)
         {
             if (tiles.getTile(Vector2{(float)i, (float)j}) <= 3)
             {
-                Rectangle tile = Rectangle{i*tileDrawSize, j*tileDrawSize, tileDrawSize, tileDrawSize};
+                Rectangle tile = Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize};
                 if (CheckCollisionRecs(rec, tile))
                 {
                     if(velo.y > 0) rec.y = tile.y - rec.height;
                     else rec.y = tile.y + tile.height;
-                }                
+                }
             }
-            
+
         }
-        
+
     }
     return rec;
 }
@@ -151,15 +150,15 @@ inline bool mapLoader::checkCollisions(Rectangle rec)
         {
             if (tiles.getTile(Vector2{(float)i, (float)j}) <= 3)
             {
-                Rectangle tile = Rectangle{i*tileDrawSize, j*tileDrawSize, tileDrawSize, tileDrawSize};
+                Rectangle tile = Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize};
                 if (CheckCollisionRecs(rec, tile))
                 {
                     colliding = true;
-                }                
+                }
             }
-            
+
         }
-        
+
     }
     return colliding;
 }
@@ -186,8 +185,8 @@ inline bool mapLoader::rayCast(Vector2 position, Vector2 target) {
 inline void mapLoader::tileExplosion(Vector2 position) {
     int x = position.x / tileDrawSize;
     int y = position.y / tileDrawSize;
-    for (int i = x - 1; i <= x + 1; i++) {
-        for (int j = y - 1; j <= y + 1; j++) {
+    for (float i = x - 1; i <= x + 1; i++) {
+        for (float j = y - 1; j <= y + 1; j++) {
             if (i <= 0 || i >= 99 || j <= 0 || j >= 99) continue;
             if (tiles.getTile({i, j}) < 4) {
                 tiles.setTile({i, j}, GetRandomValue(12, 15));
@@ -210,19 +209,19 @@ inline CollisionInfo mapLoader::checkCollisionsInfo(Rectangle rec, Vector2 velo)
         {
             if (tiles.getTile(Vector2{(float)i, (float)j}) <= 3)
             {
-                Rectangle tile = Rectangle{i*tileDrawSize, j*tileDrawSize, tileDrawSize, tileDrawSize};
+                Rectangle tile = Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize};
                 if (CheckCollisionRecs(rec, tile))
                 {
                     repl.x = (rec.x + rec.width)/2 - (tile.x + tile.width)/2;
                     repl.y = (rec.y + rec.height)/2 - (tile.y + tile.height)/2;
-                    
+
                     if(velo.x > 0) rec.x = tile.x - rec.width;
                     else rec.x = tile.x + tile.width;
-                }                
+                }
             }
-            
+
         }
-        
+
     }
     rec.y += velo.y;
     for (int i = x-1; i < x+2; i++)
@@ -231,19 +230,19 @@ inline CollisionInfo mapLoader::checkCollisionsInfo(Rectangle rec, Vector2 velo)
         {
             if (tiles.getTile(Vector2{(float)i, (float)j}) <= 3)
             {
-                Rectangle tile = Rectangle{i*tileDrawSize, j*tileDrawSize, tileDrawSize, tileDrawSize};
+                Rectangle tile = Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize};
                 if (CheckCollisionRecs(rec, tile))
                 {
                     repl.x = (rec.x + rec.width)/2 - (tile.x + tile.width)/2;
                     repl.y = (rec.y + rec.height)/2 - (tile.y + tile.height)/2;
-                    
+
                     if(velo.y > 0) rec.y = tile.y - rec.height;
                     else rec.y = tile.y + tile.height;
-                }                
+                }
             }
-            
+
         }
-        
+
     }
     return {rec, repl};
 }

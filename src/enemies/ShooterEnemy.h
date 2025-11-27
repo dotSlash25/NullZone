@@ -1,3 +1,9 @@
+#pragma once
+#include "raylib.h"
+#include "raymath.h"
+#include "../AnimatedSprite.h"
+#include "../game.h"
+
 class ShooterEnemy: public Enemy {
     private:
         AnimatedSprite sprite = AnimatedSprite(7, 3, (int[]){5, 8, 6}, 10);
@@ -7,7 +13,7 @@ class ShooterEnemy: public Enemy {
         float reactionTime = GetRandomValue(0, 100) * 0.8f * 0.01f + 0.2f;
         float range = GetRandomValue(200, 400);
         float timeSinceInSight = 0;
-    
+
         Vector2 wallRepulsion = { 0 };
     public:
         Vector2 target = Vector2Zero();
@@ -15,7 +21,7 @@ class ShooterEnemy: public Enemy {
         bool playerInSight = false;
         Gun gun = Gun(PISTOL);
         bool foundBreadCrumb = false;
-        
+
         ShooterEnemy(Vector2 pos, gunType gType): Enemy(40, {40, 55}, 2) {
             active = true;
             position = pos;
@@ -27,7 +33,7 @@ class ShooterEnemy: public Enemy {
             sprite.scale = 5;
             gun.update({position.x + GetRandomValue(-100, 100), position.y + GetRandomValue(-100, 100)}, position);
         }
-    
+
         void update() {
             if (health < 0 && !dead) {
                 sprite.playOnce(2);
@@ -63,7 +69,7 @@ class ShooterEnemy: public Enemy {
                             float dis = Vector2DistanceSqr(position, player.breadCrumbs[i].position);
                             float plrDis = Vector2DistanceSqr(player.breadCrumbs[i].position, player.position);
                             float cost = dis + plrDis;
-                            if (minCost == 0) minCost = cost; 
+                            if (minCost == 0) minCost = cost;
                             else if (cost > minCost) continue;
                             foundBreadCrumb = true;
                             bestID = i;
@@ -104,14 +110,14 @@ class ShooterEnemy: public Enemy {
                             else patrolWaitTime -= delta;
                         }
                         moveTarget = patrolPoint;
-    
+
                         if (Vector2DistanceSqr(position, player.position) < 640000 && MapLoader.rayCast(position, player.position)) {
                             state = CHASING;
                         }
-    
+
                     }
                     break;
-    
+
                 case DEAD:
                     moveTarget = position;
                     break;
@@ -119,7 +125,7 @@ class ShooterEnemy: public Enemy {
             velocity = {moveTarget.x - position.x, moveTarget.y - position.y};
             velocity = Vector2Normalize(velocity);
             velocity = Vector2Scale(velocity, speed);
-    
+
             if (velocity.x > 0) sprite.flipH = false;
             else if (velocity.x < 0) sprite.flipH = true;
             else if (target.x > position.x) sprite.flipH = false;
@@ -129,15 +135,15 @@ class ShooterEnemy: public Enemy {
                 if (Vector2LengthSqr(velocity)) sprite.play(1);
                 else sprite.play(0);
             }
-    
+
             velocity = Vector2Add(velocity, knockback);
-    
+
             velocity = Vector2Add(velocity, Vector2Scale(wallRepulsion, 10));
             collider = Rectangle{position.x - 20, position.y - 40, size.x, size.y};
             CollisionInfo info = MapLoader.checkCollisionsInfo(collider, velocity);
             collider = info.finalCollider;
             wallRepulsion = info.repulsiveDirection;
-    
+
             position = Vector2{collider.x + 20, collider.y + 40};
             gun.update((playerInSight) ? target : moveTarget, Vector2{position.x, position.y});
             if (playerInSight) {
@@ -152,7 +158,7 @@ class ShooterEnemy: public Enemy {
             sprite.update();
             baseUpdate();
         }
-    
+
         void draw() {
             sprite.draw(position);
             if (justHit) {
@@ -166,7 +172,7 @@ class ShooterEnemy: public Enemy {
                 DrawText(TextFormat("%.2f %.2f\n%f", timeSinceInSight, reactionTime, Vector2Distance(position, player.position)), position.x, position.y, 10, WHITE);
             }
         }
-        
+
         void death() {
             state = DEAD;
             sprite.playOnce(2);
@@ -174,4 +180,3 @@ class ShooterEnemy: public Enemy {
             gun = Gun(NONE);
         }
 };
-    

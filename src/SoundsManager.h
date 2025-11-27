@@ -2,9 +2,9 @@
 
 class SoundsManager {
 private:
-    static const int numAliases = 5;
+    static const int numAliases = 6;
     static const int soundAliasCount = 5;
-    static const int numSounds = 6;
+    static const int numSounds = 7;
     Sound sounds[numSounds];
     Sound soundAliases[soundAliasCount][numAliases];
     int currentPlayingAlias[soundAliasCount];
@@ -29,6 +29,7 @@ SoundsManager::SoundsManager() {
     paths[3] = ("audio/shotgun.wav");
     paths[4] = ("audio/sniper.wav");
     paths[5] = "audio/walking.wav";
+    paths[6] = "audio/explosion.wav";
 }
 
 inline void SoundsManager::loadSounds() {

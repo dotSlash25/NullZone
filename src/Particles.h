@@ -1,6 +1,5 @@
 #pragma once
 
-
 extern SpritesManager spriteManager;
 //chhatu phuti jaichi
 class Particle
@@ -50,8 +49,9 @@ inline void Particle::draw()
         float drawSize = size * scale;
         if (textureID == -1) {
             DrawRectanglePro(Rectangle{position.x - size/2, position.y - size/2, size, size}, {size/2, size/2}, rotation, RAYWHITE);
-        } else {
-            DrawTexturePro(spriteManager.sprite(textureID), Rectangle{textureFrame*16, 16, 16, 16}, Rectangle{position.x, position.y, drawSize, drawSize}, {drawSize/2, drawSize/2}, rotation, WHITE);
+        } else {                
+            float clampedScale = Clamp(scale*scale / 80, 0.0f, 1.0f);
+            DrawTexturePro(spriteManager.sprite(textureID), Rectangle{textureFrame*16.0f, 16, 16, 16}, Rectangle{position.x, position.y, drawSize, drawSize}, {drawSize/2, drawSize/2}, rotation, Fade(WHITE, clampedScale));
         }
     }
 }
@@ -115,8 +115,8 @@ inline void Particles::update(void)
                 p.scale = scale;
                 if (spawnAmount == amount)
                     break;
-            }    
-        }        
+            }
+        }
     }
     for (auto &&i : particles)
     {
@@ -165,8 +165,8 @@ OverworldParticles::OverworldParticles(Rectangle _bounds) {
 inline void OverworldParticles::update() {
     for (short i = 0; i < numParticles; i++) {
         if (!particles[i].active) {
-            particles[i].position = {GetRandomValue(bounds.x, bounds.width), GetRandomValue(bounds.y, bounds.height)};
-            particles[i].velocity = {GetRandomValue(-300, 300), GetRandomValue(-300, 300)};
+            particles[i].position = {(float)GetRandomValue(bounds.x, bounds.width), (float)GetRandomValue(bounds.y, bounds.height)};
+            particles[i].velocity = {(float)GetRandomValue(-300, 300), (float)GetRandomValue(-300, 300)};
             particles[i].spriteIndex = GetRandomValue(0, 15);
             particles[i].active = true;
         } else {
@@ -177,7 +177,7 @@ inline void OverworldParticles::update() {
     }
     lastWindChanged -= delta;
     if (lastWindChanged <= 0) {
-        windDirection = Vector2{GetRandomValue(-30,30), GetRandomValue(-30,30)};
+        windDirection = Vector2{(float)GetRandomValue(-30,30), (float)GetRandomValue(-30,30)};
     }
 }
 
@@ -186,6 +186,6 @@ inline void OverworldParticles::draw(Vector2 referencePoint) {
         int delX = particles[i].spriteIndex%4;
         int delY = (int)(particles[i].spriteIndex/4);
         float scale = 2;
-        DrawTexturePro(spriteManager.sprite(5), Rectangle{delX*16, delY*16, 16, 16}, Rectangle{particles[i].position.x, particles[i].position.y, 16*scale, 16*scale}, Vector2Zero(), 0.0f, WHITE);
+        DrawTexturePro(spriteManager.sprite(5), Rectangle{(float)delX*16, (float)delY*16, 16, 16}, Rectangle{particles[i].position.x, particles[i].position.y, 16*scale, 16*scale}, Vector2Zero(), 0.0f, WHITE);
     }
 }

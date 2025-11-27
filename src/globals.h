@@ -94,7 +94,7 @@ struct gunData {
 };
 
 const std::string gunNames[] = {
-    "NONE", 
+    "NONE",
     "PISTOL",
     "SMG",
     "RIFLE",

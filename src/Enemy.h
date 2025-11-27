@@ -83,6 +83,6 @@ public:
     }
 };
 
-#include "src/enemies/WalkerEnemy.h"
-#include "src/enemies/ShooterEnemy.h"
-#include "src/enemies/BoomEnemy.h"
+#include "enemies/WalkerEnemy.h"
+#include "enemies/ShooterEnemy.h"
+#include "enemies/BoomEnemy.h"

@@ -26,7 +26,7 @@ public:
     ~Bullet();
 
     Rectangle collider = { 0 };
-    
+
     float damage = 0.0f;
 
     void disable();
@@ -45,13 +45,13 @@ Bullet::Bullet(int type, float shootAngle)
 
 Bullet::~Bullet()
 {
-    
+
 }
 
 inline void Bullet::disable()
 {
     active = false;
-    if (this->explosive) explosives.addExplosive(position, { 0 }, 0);
+    if (this->explosive) explosives.addExplosive(position, { 0 }, damage, 0);
 }
 
 inline void Bullet::update()
@@ -81,7 +81,7 @@ inline void Bullet::draw()
 }
 
 inline void Bullet::loadData(int x) {
-    
+
 }
 
 inline void Bullet::setExplosive() {

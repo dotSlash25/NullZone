@@ -10,6 +10,7 @@
 Game game = Game();
 
 int main() {
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(SCREENWIDTH, SCREENHEIGHT, "NullZone");
     InitAudioDevice();
     if (!soundEnabled) SetMasterVolume(0);
@@ -18,7 +19,7 @@ int main() {
     SetTargetFPS(144);
     while(!WindowShouldClose()) {
         game.update();
-        
+
         BeginDrawing();
         ClearBackground(BLACK);
         game.draw();

@@ -49,7 +49,7 @@ class BoomEnemy: public Enemy {
     }
     
     void death() {
-        explosives.addExplosive(position, Vector2Zero(), 0);
+        explosives.addExplosive(position, Vector2Zero(), 50, 0);
         dead = true;
         sprite.playOnce(2);
     }

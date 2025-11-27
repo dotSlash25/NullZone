@@ -1,7 +1,5 @@
 #pragma once
-#include "math.h"
-
-#include "src/Bullet.h"
+#include "Bullet.h"
 
 extern std::vector<Bullet> bullets;
 //extern SoundsManager soundManager;
@@ -9,10 +7,9 @@ extern std::vector<Bullet> bullets;
 class Gun {
 private:
     float firerate = 0;
-    
+
     float damage = 0;
-    
-    float inaccuracy = 0;
+
     int spreadNumber = 1;
     float spreadAngle = 15*DEG2RAD;
     int burstNumber = 1;
@@ -44,16 +41,17 @@ private:
     bool active;
     Rectangle srcTexture;
     
+    float inaccuracy = 0;
     int numbullets;
     int bulletsIn;
     int clips;
-    
+
     bool automatic = false;
     float kickback = 2;
     float rotation = 0;
     float range = 40;
     float scope = 1.0f;
-    
+
     bool reloading = false;
     float reloadingTime = 0;
     float reloadTime = 0;
@@ -73,7 +71,7 @@ inline void Gun::loadData(gunType t)
     shootParticles.initialVelocity = 100;
     shootParticles.spread = 1.5f;
     shootParticles.lifetime = 0.2f;
-    
+
     active = true;
     srcTexture = gunSizes[t-1];
     gunData dat = GunData[t-1];
@@ -122,11 +120,11 @@ inline void Gun::shoot(bool isEnemy)
     shootParticles.direction = del;
     shootParticles.start();
     soundManager.playSound((int)type - 1);
-    
+
     justShot = true;
 }
 
-Gun::Gun(gunType GunType)
+inline Gun::Gun(gunType GunType)
 {
     type = GunType;
     loadData(type);
@@ -178,7 +176,7 @@ inline void Gun::update(Vector2 aim, Vector2 pos)
         }
     }
 
-    
+
     shootParticles.update();
 }
 
@@ -202,8 +200,8 @@ inline void Gun::draw()
         Vector2 org = {0, 0};
         DrawTexturePro(tex, src, dst, org, rotation*RAD2DEG, WHITE);
         justShot = false;
-    }*/ 
-    
+    }*/
+
     shootParticles.draw();
 }
 

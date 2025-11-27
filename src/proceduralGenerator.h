@@ -14,27 +14,27 @@ namespace Generator {
         bool invalid = point.x <= 0 || point.y <= 0 || point.x >= 99 || point.y >= 99;
         return !invalid;
     }
-    
+
     void createRoom(Vector2* walkedAreas, int& totalSteps, Vector2 position) {
         int width = GetRandomValue(3, 5);
         int height = GetRandomValue(3, 5);
-        int posX = ceil(position.x - width / 2);
-        int posY = ceil(position.y - height / 2);
-        Rectangle room = {posX, posY, width, height};
+        int posX = ceil(position.x - (float)width / 2);
+        int posY = ceil(position.y - (float)height / 2);
+        Rectangle room = {(float)posX, (float)posY, (float)width, (float)height};
         for (int i = 0; i < roomsCount; i++) {
             if (CheckCollisionRecs(rooms[i], room)) return;
         }
         for (int i = posX; i < posX + width; i++) {
             for (int j = posY; j < posY + height; j++) {
                 if (totalSteps == maxSteps - 1) return;
-                Vector2 newPoint = (Vector2){(float)i, (float)j};
+                Vector2 newPoint = {(float)i, (float)j};
                 if (isValidPoint(newPoint))
                 walkedAreas[totalSteps++] = newPoint;
             }
         }
         rooms[roomsCount++] = room;
     }
-    
+
     void changeDirection(int* direction) {
         int newDirection;
         do {
@@ -47,7 +47,7 @@ namespace Generator {
         switch (dir) {
             case 0:
             return {1, 0};
-            
+
             case 1:
             return {0, -1};
 
@@ -66,7 +66,7 @@ namespace Generator {
         data->collectibleTypes[data->numCollectibleSpawnPositions] = val;
         int dat = GetRandomValue(0, 6);
         if (val != 0) dat = GetRandomValue(40, 80);
-        data->collectibleData[data->numCollectibleSpawnPositions] = dat; 
+        data->collectibleData[data->numCollectibleSpawnPositions] = dat;
         data->numCollectibleSpawnPositions++;
     }
 
@@ -86,9 +86,9 @@ namespace Generator {
         int stepsSinceLastTurn[5] = { 0 };
         int totalSteps = 0;
 
-        walkers[0] = {GetRandomValue(30, 70), GetRandomValue(30, 70)};
+        walkers[0] = {(float)GetRandomValue(30, 70), (float)GetRandomValue(30, 70)};
         walkerDirections[0] = GetRandomValue(0, 3);
-        
+
         Vector2* walkedAreas = (Vector2*)malloc(maxSteps*sizeof(Vector2));
         while (totalSteps < maxSteps) {
             for (int i = 0; i < numWalkers; i++) {
@@ -123,7 +123,7 @@ namespace Generator {
         }
         if (IsRenderTextureValid(data.minimap)) UnloadRenderTexture(data.minimap);
         data.minimap = LoadRenderTexture(100, 100);
-        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[0], tileDrawSize), {tileDrawSize/2, tileDrawSize/2});
+        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[0], tileDrawSize), {(float)tileDrawSize/2, (float)tileDrawSize/2});
         BeginTextureMode(data.minimap);
         DrawRectangle(0, 0, 100, 100, backgroundColour2);
         for (int i = 0; i < maxSteps; i++) {
@@ -131,13 +131,13 @@ namespace Generator {
             DrawPixelV(walkedAreas[i], foregroundColour2);
         }
         for (int i = 0; i < data.numEnemySpawnPositions; i++) {
-            DrawPixelV(Vector2Scale(Vector2Subtract(data.enemySpawnPositions[i], {tileDrawSize/2, tileDrawSize/2}), 1.0/tileDrawSize), foregroundColour2);
+            DrawPixelV(Vector2Scale(Vector2Subtract(data.enemySpawnPositions[i], {(float)tileDrawSize/2, (float)tileDrawSize/2}), 1.0/tileDrawSize), foregroundColour2);
         }
         EndTextureMode();
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 100; j++) {
-                if (tilemap->getTile({i, j}) <= 3 && tilemap->getTile({i, j+1}) > 7) {
-                    tilemap->setTile({i, j+1}, GetRandomValue(4, 7));
+                if (tilemap->getTile({(float)i, (float)j}) <= 3 && tilemap->getTile({(float)i, (float)j+1}) > 7) {
+                    tilemap->setTile({(float)i, (float)j+1}, GetRandomValue(4, 7));
                 }
             }
         }
@@ -154,8 +154,8 @@ namespace Generator {
 
         mapData data = { 0 };
 
-        Vector2 walkerPosition = {GetRandomValue(1, 49), GetRandomValue(1, 49)};
-        Vector2 targetPosition = { 0 };
+        Vector2 walkerPosition = {(float)GetRandomValue(1, 49), (float)GetRandomValue(1, 49)};
+        Vector2 targetPosition = {0, 0};
         int walkerDirection = GetRandomValue(0, 3);
         int stepsSinceLastTurn = 0;
         int totalSteps = 0;
@@ -190,14 +190,14 @@ namespace Generator {
             }
         }
 
-        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[totalSteps - 1], tileDrawSize), {tileDrawSize/2, tileDrawSize/2});
+        data.playerPosition = Vector2Add(Vector2Scale(walkedAreas[totalSteps - 1], tileDrawSize), {(float)tileDrawSize/2, (float)tileDrawSize/2});
         for (int i = 0; i < requiredSteps; i++) {
             tilemap->setTile(walkedAreas[i], GetRandomValue(8, 11));
         }
         for (int i = 0; i < 50; i++) {
             for (int j = 0; j < 50; j++) {
-                if (tilemap->getTile({i, j}) <= 3 && tilemap->getTile({i, j+1}) > 7) {
-                    tilemap->setTile({i, j+1}, GetRandomValue(4, 7));
+                if (tilemap->getTile({(float)i, (float)j}) <= 3 && tilemap->getTile({(float)i, (float)j+1}) > 7) {
+                    tilemap->setTile({(float)i, (float)j+1}, GetRandomValue(4, 7));
                 }
             }
         }

@@ -36,11 +36,11 @@ inline void HUD::update(gunType _selectedGunType, float healthRatio, int _bullet
 }
 
 inline void HUD::draw() {
-    /*t += GetFrameTime();
-    if (t >= 2 * PI) t -= 2 * PI;*/
+    t += GetFrameTime();
+    if (t >= 2 * PI) t -= 2 * PI;
 
     Rectangle srcTexture = gunSizes[selectedGunType - 1];
-    float scale = 5.4 * 2 * gunScale;// + 0.5 * sin(1.2f * PI * t);
+    float scale = 5.4 * 2 * gunScale + 0.5 * sin(1.2f * PI * t);
     Vector2 org = Vector2Zero();//{srcTexture.width * scale / 2, srcTexture.height * scale / 2};
     float yOffset = 10;
     float drawWidth = srcTexture.width * scale;

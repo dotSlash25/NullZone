@@ -27,12 +27,12 @@ private:
     bool justHit = false;
     float hitTimer = 0;
     HUD hud;
-    
+
     float explosivePrimeTimer = 0;
     bool explosivePrimed = false;
-    
+
     Vector2 spriteSize = { 0 };
-    
+
     Vector2 getGlobalMousePosition();
     void updateBreadcrumbs();
     void updateGun();
@@ -46,11 +46,12 @@ public:
     Vector2 knockback = { 0 };
     camera cam = camera();
     Gun gun = Gun(PISTOL);
-    
+
     int charges = 3;
     float health = 100;
     bool dead = false;
-    
+    float visionBlur = 0;
+
     void update();
     void draw();
     void init();
@@ -91,6 +92,7 @@ inline void Player::update() {
         updateBreadcrumbs();
         updateGun();
         handleMovement();
+        visionBlur = lerp(visionBlur, 0, 1.5f);
     }
     if (justHit) {
         hitTimer -= delta;
@@ -107,9 +109,9 @@ inline void Player::update() {
 
 inline void Player::draw() {
     if (DEBUG)
-    for (auto &&crumb : breadCrumbs) {
-        DrawCircleV(crumb.position, 5, YELLOW);
-    }
+        for (auto &&crumb : breadCrumbs) {
+            DrawCircleV(crumb.position, 5, YELLOW);
+        }
     if (justHit) BeginShaderMode(flashShader);
     sprite.draw(position);
     if (justHit) EndShaderMode();
@@ -127,8 +129,9 @@ inline void Player::updateHUD() {
 inline void Player::fire() {
     if (gun.fire(false)) {
         Vector2 del = Vector2{cos(gun.rotation), sin(gun.rotation)};
-        del = Vector2Scale(del, gun.kickback*15);
-        cam.shake(del*3);
+        del = Vector2Scale(del, gun.kickback);
+        if (gun.type == SNIPER or gun.type == SHOTGUN) visionBlur = 2;
+        cam.shake(del, gun.kickback / 5);
         knockback = Vector2Normalize(Vector2Subtract(position, getGlobalMousePosition()));
         knockback = Vector2Scale(knockback, gun.kickback*50);
     }
@@ -175,7 +178,7 @@ inline void Player::updateGun() {
         {
             applyDamage(bullet.damage, bullet.velocity);
             bullet.disable();
-        } 
+        }
     }
 }
 
@@ -210,7 +213,7 @@ inline void Player::handleInput() {
         explosivePrimeTimer += delta;
         explosivePrimed = true;
     } else if (IsMouseButtonReleased(1) && explosivePrimed) {
-        explosives.addExplosive(position, Vector2Scale(Vector2Normalize(Vector2Subtract(getGlobalMousePosition(), position)), 1400.0f*explosivePrimeTimer + 100), 3 - explosivePrimeTimer);
+        explosives.addExplosive(position, Vector2Scale(Vector2Normalize(Vector2Subtract(getGlobalMousePosition(), position)), 1400.0f*explosivePrimeTimer + 100), 100, 3 - explosivePrimeTimer);
         explosivePrimeTimer = 0;
         charges--;
         explosivePrimed = false;
@@ -220,7 +223,7 @@ inline void Player::handleInput() {
 inline void Player::handleMovement() {
     velocity = Vector2Normalize(velocity);
     velocity = Vector2Scale(velocity, maxSpeed);
-    
+
     if (dashing) {
         knockback = Vector2Zero();
         velocity = dashVelocity;
@@ -229,7 +232,7 @@ inline void Player::handleMovement() {
             dashing = false;
         }
     }
-    
+
     if (Vector2LengthSqr(velocity) > 10) {
         sprite.play(1);
         //if ((sprite.frame == 3 || sprite.frame == 7) && !IsSoundPlaying(soundManager.getSound(5))) soundManager.playSoundWithVarPitch(5);
@@ -256,7 +259,7 @@ inline void Player::handleMovement() {
 
 inline void Player::applyDamage(float damage, Vector2 direction) {
     health -= damage;
-    
+
     if (health <= 0) {
         dead = true;
         slowMo(1.0f, 0.1f);

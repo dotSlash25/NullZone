@@ -43,11 +43,11 @@ inline void Tilemap::draw() {
 
 inline void Tilemap::draw(Rectangle camRect)
 {
-    int startX = std::max({0.0f, camRect.x / tileDrawSize});
-    int startY = std::max({0.0f, camRect.y / tileDrawSize});
-    int endX = std::min({99.0f, (camRect.x + camRect.width) / tileDrawSize});
-    int endY = std::min({99.0f, (camRect.y + camRect.height) / tileDrawSize});
-    
+    int startX = std::max(0.0f, camRect.x / tileDrawSize);
+    int startY = std::max(0.0f, camRect.y / tileDrawSize);
+    int endX = std::min(99.0f, (camRect.x + camRect.width) / tileDrawSize);
+    int endY = std::min(99.0f, (camRect.y + camRect.height) / tileDrawSize);
+
     for (int i = startX; i <= endX; i++)
     {
         for (int j = startY; j <= endY; j++)
@@ -56,7 +56,7 @@ inline void Tilemap::draw(Rectangle camRect)
             float delY = (float)((int)data[i][j]/4);
             DrawTexturePro(spriteManager.sprite(tileSetId), Rectangle{delX*tileSize.x, delY*tileSize.y, tileSize.x, tileSize.y}, Rectangle{(float)i*tileDrawSize, (float)j*tileDrawSize, tileDrawSize, tileDrawSize}, Vector2Zero(), 0.0f, WHITE);
         }
-        
+
     }
 }
 
